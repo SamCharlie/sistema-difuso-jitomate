@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistemas Difusos - Proyecto IoT Jitomate</title>
+    <!-- Tailwind CSS para diseño moderno -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js para las gráficas difusas automáticas -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- MathJax para renderizar fórmulas matemáticas de alta calidad -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        /* --- ANIMACIÓN LIQUID GLASS (Fondo Fluido) --- */
+        body {
+            margin: 0;
+            background-color: #e2e8f0; /* Color base claro */
+            position: relative;
+        }
+        
+        .liquid-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            overflow: hidden;
+            background: #f8fafc;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.7;
+            mix-blend-mode: multiply; /* Mezcla los colores como líquidos */
+        }
+
+        /* Esfera Roja (Estrés por Sequía) */
+        .orb-red { 
+            width: 45vw; height: 45vw; background: #ff7675; 
+            top: -10%; left: -10%; 
+            animation: move-red 28s infinite ease-in-out, morph 12s infinite ease-in-out;
+        }
+        /* Esfera Verde (Humedad Óptima) */
+        .orb-green { 
+            width: 40vw; height: 40vw; background: #55efc4; 
+            bottom: -15%; right: -10%; 
+            animation: move-green 32s infinite ease-in-out, morph 14s infinite ease-in-out;
+            animation-delay: -5s; 
+        }
+        /* Esfera Azul (Asfixia Radicular) */
+        .orb-blue { 
+            width: 35vw; height: 35vw; background: #74b9ff; 
+            top: 40%; left: 30%; 
+            animation: move-blue 25s infinite ease-in-out, morph 10s infinite ease-in-out;
+            animation-delay: -10s; 
+        }
+
+        /* --- Animaciones de trayectoria por toda la pantalla --- */
+        @keyframes move-red {
+            0% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(60vw, 40vh) scale(1.1); }
+            66% { transform: translate(20vw, 80vh) scale(0.9); }
+            100% { transform: translate(0, 0) scale(1); }
+        }
+        
+        @keyframes move-green {
+            0% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(-50vw, -60vh) scale(1.2); }
+            66% { transform: translate(-70vw, 10vh) scale(0.8); }
+            100% { transform: translate(0, 0) scale(1); }
+        }
+
+        @keyframes move-blue {
+            0% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30vw, -50vh) scale(0.8); }
+            66% { transform: translate(-40vw, -20vh) scale(1.2); }
+            100% { transform: translate(0, 0) scale(1); }
+        }
+
+        /* Animación de deformación líquida */
+        @keyframes morph {
+            0% { border-radius: 40% 60% 70% 30% / 40% 40% 60% 50%; }
+            34% { border-radius: 70% 30% 50% 50% / 30% 30% 70% 70%; }
+            67% { border-radius: 100% 60% 60% 100% / 100% 100% 60% 60%; }
+            100% { border-radius: 40% 60% 70% 30% / 40% 40% 60% 50%; }
+        }
+
+        /* --- EFECTO GLASSMORPHISM (Tarjetas Translúcidas) --- */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.45); /* Alta transparencia */
+            backdrop-filter: blur(16px) saturate(120%);
+            -webkit-backdrop-filter: blur(16px) saturate(120%);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+        }
+        
+        .glass-inner {
+            background: rgba(255, 255, 255, 0.35);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 8px;
+        }
+
+        .tomato-gradient {
+            background: linear-gradient(135deg, rgba(192, 57, 43, 0.9) 0%, rgba(231, 76, 60, 0.9) 100%);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .math-box {
+            font-size: 1.15rem;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body class="text-gray-900 font-sans antialiased">
+
+    <!-- FONDO LIQUID GLASS -->
+    <div class="liquid-bg">
+        <div class="orb orb-red"></div>
+        <div class="orb orb-green"></div>
+        <div class="orb orb-blue"></div>
+    </div>
+
+    <!-- PORTADA -->
+    <header class="tomato-gradient text-white py-12 px-6 shadow-lg mb-10">
+        <div class="max-w-6xl mx-auto relative z-10">
+            <h2 class="text-sm font-bold tracking-widest uppercase text-red-200 mb-2">Actividad 5 - Sistemas Difusos Inteligentes</h2>
+            <h1 class="text-3xl md:text-5xl font-extrabold mb-4 leading-tight">Operaciones de Conjuntos Difusos Aplicadas a la Agricultura IoT</h1>
+            <p class="text-lg text-red-50 font-light max-w-3xl mb-6">
+                <strong>Proyecto de Tesis:</strong> Diseño de un sistema predictivo basado en Machine Learning e IoT para la mitigación de estrés hídrico y optimización de riego en cultivos de jitomate bajo ambiente controlado.
+            </p>
+            <div class="border-t border-red-300/50 pt-4 flex flex-col md:flex-row justify-between text-sm font-medium">
+                <p>Alumno: Carlos Alberto Salazar Martínez</p>
+                <p>Maestría en Inteligencia Artificial</p>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 pb-20 relative z-10">
+        
+        <!-- CONTEXTO DEL PROYECTO -->
+        <section class="mb-12 glass-card p-8 border-l-8 border-blue-500/70">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">Contexto: El Controlador Difuso del Proyecto</h2>
+            <p class="mb-4 text-lg text-gray-800">
+                Para evitar el <strong>estrés hídrico</strong> en el cultivo de jitomate, el control de riego tradicional basado en lógica binaria (ej. 0 = bomba apagada, 1 = bomba encendida al 100%) resulta ineficiente. Desperdicia recursos hídricos y puede causar asfixia radicular. Para solucionar esto, el proyecto implementa un <strong>Sistema de Inferencia Difusa (tipo Mamdani)</strong> integrado en los nodos de la red IoT.
+            </p>
+            <div class="glass-inner p-6 mb-6">
+                <h3 class="text-xl font-bold text-blue-900 mb-3">Definición Agronómica de la Variable Base</h3>
+                <p class="mb-2 text-gray-800">El algoritmo fuzzifica los datos sensoriales. Para visualizar matemáticamente las 11 propiedades de esta actividad, modelaremos el Universo de Discurso principal: la <strong>Humedad del Suelo (\(X\))</strong>, evaluada de 0% a 100%. Con base en la literatura agronómica del jitomate, se establecen tres conjuntos difusos con los siguientes parámetros reales:</p>
+                
+                <ul class="list-disc list-inside text-gray-800 space-y-3 mt-4">
+                    <li><span class="font-bold text-green-800">Conjunto A (Humedad Óptima):</span> El jitomate requiere una humedad de suelo ideal entre <strong>50% y 70%</strong> para la correcta absorción de nutrientes sin llegar a la asfixia. Su punto máximo de membresía (1.0) se alcanza entre el 50% y 60%.</li>
+                    <li><span class="font-bold text-red-800">Conjunto B (Humedad Baja - Riesgo de Sequía):</span> Por debajo del 40%, la planta cierra sus estomas para evitar la transpiración, frenando la fotosíntesis y el crecimiento (estrés hídrico por déficit). La membresía de peligro es total (1.0) de 0% a 10% y decae hacia el 40%.</li>
+                    <li><span class="font-bold text-blue-800">Conjunto C (Humedad Alta - Riesgo de Exceso):</span> Por encima del 80%, el suelo se encharca. El agua desplaza al oxígeno en las raíces causando hipoxia (asfixia radicular) y proliferación de hongos patógenos. Su membresía de peligro máximo (1.0) ocurre del 90% al 100%.</li>
+                </ul>
+            </div>
+            
+            <ul class="grid md:grid-cols-3 gap-4 mb-8 text-center">
+                <li class="glass-inner bg-green-50/40 p-4 border-green-200/50">
+                    <span class="block text-xl font-bold text-green-800 mb-1">Conjunto A</span> 
+                    Humedad Óptima <br><span class="text-sm text-gray-700">(50% a 70%)</span>
+                </li>
+                <li class="glass-inner bg-red-50/40 p-4 border-red-200/50">
+                    <span class="block text-xl font-bold text-red-800 mb-1">Conjunto B</span> 
+                    Humedad Baja <br><span class="text-sm text-gray-700">(< 40% - Sequía)</span>
+                </li>
+                <li class="glass-inner bg-blue-50/40 p-4 border-blue-200/50">
+                    <span class="block text-xl font-bold text-blue-800 mb-1">Conjunto C</span> 
+                    Humedad Alta <br><span class="text-sm text-gray-700">(> 80% - Asfixia/Hongos)</span>
+                </li>
+            </ul>
+
+            <div class="w-full max-w-4xl mx-auto glass-inner p-4 mb-8">
+                <canvas id="chartIntro"></canvas>
+            </div>
+
+            <!-- TABLA DE VECTORES DE DATOS (Transparente) -->
+            <div class="w-full max-w-4xl mx-auto overflow-x-auto glass-inner">
+                <table class="w-full text-sm text-left text-gray-800">
+                    <caption class="p-5 text-lg font-bold text-left text-gray-900 border-b border-white/40">
+                        Matriz de Datos Base (Grados de Membresía $\mu$)
+                        <p class="mt-1 text-sm font-normal text-gray-700">Los siguientes vectores matemáticos alimentan las gráficas de las 11 propiedades presentadas a continuación. Representan el grado de pertenencia (\(0 \leq \mu \leq 1\)) de la variable Universo (Humedad en %) a cada conjunto difuso.</p>
+                    </caption>
+                    <thead class="text-xs text-gray-900 uppercase bg-white/30 border-b border-white/40">
+                        <tr>
+                            <th scope="col" class="px-6 py-4 text-center font-extrabold border-r border-white/40">Humedad ($X$)</th>
+                            <th scope="col" class="px-6 py-4 text-center font-bold text-red-800 border-r border-white/40">$\mu_B$ (Sequía)</th>
+                            <th scope="col" class="px-6 py-4 text-center font-bold text-green-800 border-r border-white/40">$\mu_A$ (Óptima)</th>
+                            <th scope="col" class="px-6 py-4 text-center font-bold text-blue-800">$\mu_C$ (Asfixia)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-white/30 hover:bg-white/40 transition-colors"><td class="px-6 py-2 text-center font-medium border-r border-white/30">0 %</td><td class="px-6 py-2 text-center border-r border-white/30 text-red-700 font-bold">1.0</td><td class="px-6 py-2 text-center border-r border-white/30">0.0</td><td class="px-6 py-2 text-center">0.0</td></tr>
+                        <tr class="bg-white/10 border-b border-white/30 hover:bg-white/40 transition-colors"><td class="px-6 py-2 text-center font-medium border-r border-white/30">10 %</td><td class="px-6 py-2 text-center border-r border-white/30 text-red-700 font-bold">1.0</td><td class="px-6 py-2 text-center border-r border-white/30">0.0</td><td class="px-6 py-2 text-center">0.0</td></tr>
+                        <tr class="border-b border-white/30 hover:bg-white/40 transition-colors"><td class="px-6 py-2 text-center font-medium border-r border-white/30">20 %</td><td class="px-6 py-2 text-center border-r border-white/30">0.8</td><td class="px-6 py-2 text-center border-r border-white/30">0.0</td><td class="px-6 py-2 text-center">0.0</td></tr>
+                        <tr class="bg-white/10 border-b border-white/30 hover:bg-white/40 transition-colors"><td class="px-6 py-2 text-center font-medium border-r border-white/30">30 %</td><td class="px-6 py-2 text-center border-r border-white/30">0.5</td><td class="px-6 py-2 text-center border-r border-white/30">0.2</td><td class="px-6 py-2 text-center">0.0</td></tr>
+                        <tr class="border-b border-white/30 hover:bg-white/40 transition-colors"><td class="px-6 py-2 text-center font-medium border-r border-white/30">40 %</td><td class="px-6 py-2 text-center border-r border-white/30">0.2</td><td class="px-6 py-2 text-center border-r border-white/30">0.6</td><td class="px-6 py-2 text-center">0.0</td></tr>
+                        <tr class="bg-white/10 border-b border-white/30 hover:bg-white/40 transition-colors"><td class="px-6 py-2 text-center font-medium border-r border-white/30">50 %</td><td class="px-6 py-2 text-center border-r border-white/30">0.0</td><td class="px-6 py-2 text-center border-r border-white/30 text-green-700 font-bold">1.0</td><td class="px-6 py-2 text-center">0.0</td></tr>
+                        <tr class="border-b border-white/30 hover:bg-white/40 transition-colors"><td class="px-6 py-2 text-center font-medium border-r border-white/30">60 %</td><td class="px-6 py-2 text-center border-r border-white/30">0.0</td><td class="px-6 py-2 text-center border-r border-white/30 text-green-700 font-bold">1.0</td><td class="px-6 py-2 text-center">0.0</td></tr>
+                        <tr class="bg-white/10 border-b border-white/30 hover:bg-white/40 transition-colors"><td class="px-6 py-2 text-center font-medium border-r border-white/30">70 %</td><td class="px-6 py-2 text-center border-r border-white/30">0.0</td><td class="px-6 py-2 text-center border-r border-white/30">0.6</td><td class="px-6 py-2 text-center">0.2</td></tr>
+                        <tr class="border-b border-white/30 hover:bg-white/40 transition-colors"><td class="px-6 py-2 text-center font-medium border-r border-white/30">80 %</td><td class="px-6 py-2 text-center border-r border-white/30">0.0</td><td class="px-6 py-2 text-center border-r border-white/30">0.2</td><td class="px-6 py-2 text-center">0.6</td></tr>
+                        <tr class="bg-white/10 border-b border-white/30 hover:bg-white/40 transition-colors"><td class="px-6 py-2 text-center font-medium border-r border-white/30">90 %</td><td class="px-6 py-2 text-center border-r border-white/30">0.0</td><td class="px-6 py-2 text-center border-r border-white/30">0.0</td><td class="px-6 py-2 text-center text-blue-700 font-bold">1.0</td></tr>
+                        <tr class="hover:bg-white/40 transition-colors"><td class="px-6 py-2 text-center font-medium border-r border-white/30">100 %</td><td class="px-6 py-2 text-center border-r border-white/30">0.0</td><td class="px-6 py-2 text-center border-r border-white/30">0.0</td><td class="px-6 py-2 text-center text-blue-700 font-bold">1.0</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <h2 class="text-4xl font-extrabold text-center text-gray-900 mb-10 drop-shadow-sm">Las 11 Propiedades de la Lógica Difusa</h2>
+        <p class="text-center text-gray-800 mb-10 max-w-3xl mx-auto glass-card p-4">A continuación, se desglosan las 11 ecuaciones u operaciones establecidas en la teoría de conjuntos difusos, evaluando su validez y su aplicación algorítmica dentro del sistema de riego del jitomate.</p>
+
+        <div class="grid grid-cols-1 gap-12">
+
+            <!-- PROPIEDAD 1: CONTRADICCIÓN -->
+            <div class="glass-card p-6 md:p-8 relative">
+                <span class="absolute top-4 right-4 bg-red-600/90 text-white px-3 py-1 rounded-full text-xs font-bold shadow backdrop-blur-sm">NO VÁLIDA</span>
+                <h3 class="text-2xl font-bold text-gray-900 mb-4">1. Ley de Contradicción</h3>
+                <div class="grid md:grid-cols-2 gap-8 items-start">
+                    <div>
+                        <div class="math-box glass-inner p-4 text-center mb-4 shadow-inner">
+                            $$A \cap \overline{A} \neq \emptyset$$
+                            $$\min(\mu_A(x), 1 - \mu_A(x)) \neq 0$$
+                        </div>
+                        <p class="text-gray-800 mb-4"><strong>Descripción Textual:</strong> En la teoría clásica, la intersección de un conjunto con su complemento es vacía. En la lógica de Zadeh, los límites son difusos; un elemento puede pertenecer simultáneamente a un conjunto y a su complemento con cierto grado, por lo que su intersección no es cero.</p>
+                        <div class="glass-inner bg-green-50/30 border-l-4 border-green-500 p-4">
+                            <h4 class="font-bold text-green-900 text-sm uppercase tracking-wide mb-1">Aplicación en el Proyecto IoT</h4>
+                            <p class="text-sm text-green-900">Un sensor reporta 30% de humedad. Según la tabla, esto pertenece un 0.2 a "Óptima" (\(A\)) y un 0.8 a su complemento "No Óptima" (\(\overline{A}\)). Esta contradicción aparente es útil: al intersecar ambos valores \(\min(0.2, 0.8) = 0.2\), el algoritmo de Machine Learning acciona la válvula en estado de "riego mínimo", evitando cortes abruptos.</p>
+                        </div>
+                    </div>
+                    <div class="glass-inner p-2"><canvas id="chartP1"></canvas></div>
+                </div>
+            </div>
+
+            <!-- PROPIEDAD 2: EXCLUSIÓN DEL TERCERO -->
+            <div class="glass-card p-6 md:p-8 relative">
+                <span class="absolute top-4 right-4 bg-red-600/90 text-white px-3 py-1 rounded-full text-xs font-bold shadow backdrop-blur-sm">NO VÁLIDA</span>
+                <h3 class="text-2xl font-bold text-gray-900 mb-4">2. Ley del Tercero Excluido</h3>
+                <div class="grid md:grid-cols-2 gap-8 items-start">
+                    <div>
+                        <div class="math-box glass-inner p-4 text-center mb-4 shadow-inner">
+                            $$A \cup \overline{A} \neq X$$
+                            $$\max(\mu_A(x), 1 - \mu_A(x)) \neq 1$$
+                        </div>
+                        <p class="text-gray-800 mb-4"><strong>Descripción Textual:</strong> A diferencia de la lógica booleana, donde todo es blanco o negro (la unión de un conjunto y su opuesto cubre todo el universo), en conjuntos difusos la unión de un conjunto con su complemento no siempre alcanza el valor máximo de pertenencia (1).</p>
+                        <div class="glass-inner bg-green-50/30 border-l-4 border-green-500 p-4">
+                            <h4 class="font-bold text-green-900 text-sm uppercase tracking-wide mb-1">Aplicación en el Proyecto IoT</h4>
+                            <p class="text-sm text-green-900">El cultivo de jitomate no experimenta transiciones mágicas de "Sano" a "Marchito". La IA aprovecha esta ausencia de exclusión para detectar estados de transición (estrés temprano), enviando notificaciones preventivas al agricultor antes de que el daño sea irreversible.</p>
+                        </div>
+                    </div>
+                    <div class="glass-inner p-2"><canvas id="chartP2"></canvas></div>
+                </div>
+            </div>
+
+            <!-- PROPIEDAD 3: IDEMPOTENCIA INTERSECCION -->
+            <div class="glass-card p-6 md:p-8 relative">
+                <span class="absolute top-4 right-4 bg-blue-600/90 text-white px-3 py-1 rounded-full text-xs font-bold shadow backdrop-blur-sm">VÁLIDA</span>
+                <h3 class="text-2xl font-bold text-gray-900 mb-4">3. Idempotencia (Intersección)</h3>
+                <div class="grid md:grid-cols-2 gap-8 items-start">
+                    <div>
+                        <div class="math-box glass-inner p-4 text-center mb-4 shadow-inner">
+                            $$A \cap A = A$$
+                            $$\min(\mu_A(x), \mu_A(x)) = \mu_A(x)$$
+                        </div>
+                        <p class="text-gray-800 mb-4"><strong>Descripción Textual:</strong> La intersección de un conjunto difuso consigo mismo mediante el operador Mínimo da como resultado el conjunto original inalterado.</p>
+                        <div class="glass-inner bg-green-50/30 border-l-4 border-green-500 p-4">
+                            <h4 class="font-bold text-green-900 text-sm uppercase tracking-wide mb-1">Aplicación en el Proyecto IoT</h4>
+                            <p class="text-sm text-green-900">Si el sistema de reglas difusas evalúa redundancias como <em>"Si Humedad es Óptima AND Humedad es Óptima"</em> (debido a retardos en la transmisión de datos IoT), la decisión de riego se mantiene intacta. La Idempotencia protege el código contra sobrecálculos en las bombas.</p>
+                        </div>
+                    </div>
+                    <div class="glass-inner p-2"><canvas id="chartP3"></canvas></div>
+                </div>
+            </div>
+
+            <!-- PROPIEDAD 4: IDEMPOTENCIA UNION -->
+            <div class="glass-card p-6 md:p-8 relative">
+                <span class="absolute top-4 right-4 bg-blue-600/90 text-white px-3 py-1 rounded-full text-xs font-bold shadow backdrop-blur-sm">VÁLIDA</span>
+                <h3 class="text-2xl font-bold text-gray-900 mb-4">4. Idempotencia (Unión)</h3>
+                <div class="grid md:grid-cols-2 gap-8 items-start">
+                    <div>
+                        <div class="math-box glass-inner p-4 text-center mb-4 shadow-inner">
+                            $$A \cup A = A$$
+                            $$\max(\mu_A(x), \mu_A(x)) = \mu_A(x)$$
+                        </div>
+                        <p class="text-gray-800 mb-4"><strong>Descripción Textual:</strong> La unión de un conjunto difuso consigo mismo utilizando el operador Máximo devuelve el mismo conjunto con sus valores de membresía idénticos.</p>
+                        <div class="glass-inner bg-green-50/30 border-l-4 border-green-500 p-4">
+                            <h4 class="font-bold text-green-900 text-sm uppercase tracking-wide mb-1">Aplicación en el Proyecto IoT</h4>
+                            <p class="text-sm text-green-900">Si dos sensores de humedad instalados en la misma maceta envían la señal de alarma <em>"Humedad Baja OR Humedad Baja"</em>, el sistema tomará la decisión máxima sin duplicar la alerta. Esto evita enviar notificaciones falsas multiplicadas a la aplicación móvil del usuario.</p>
+                        </div>
+                    </div>
+                    <div class="glass-inner p-2"><canvas id="chartP4"></canvas></div>
+                </div>
+            </div>
+
+            <!-- PROPIEDAD 5: DOBLE NEGACION -->
+            <div class="glass-card p-6 md:p-8 relative">
+                <span class="absolute top-4 right-4 bg-blue-600/90 text-white px-3 py-1 rounded-full text-xs font-bold shadow backdrop-blur-sm">VÁLIDA</span>
+                <h3 class="text-2xl font-bold text-gray-900 mb-4">5. Doble Negación (Involución)</h3>
+                <div class="grid md:grid-cols-2 gap-8 items-start">
+                    <div>
+                        <div class="math-box glass-inner p-4 text-center mb-4 shadow-inner">
+                            $$\overline{\overline{A}} = A$$
+                            $$1 - (1 - \mu_A(x)) = \mu_A(x)$$
+                        </div>
+                        <p class="text-gray-800 mb-4"><strong>Descripción Textual:</strong> Aplicar el operador de complemento (NOT) dos veces consecutivas sobre un conjunto difuso anula el efecto, restaurando la curva de membresía original.</p>
+                        <div class="glass-inner bg-green-50/30 border-l-4 border-green-500 p-4">
+                            <h4 class="font-bold text-green-900 text-sm uppercase tracking-wide mb-1">Aplicación en el Proyecto IoT</h4>
+                            <p class="text-sm text-green-900">Al programar el microcontrolador, a veces se requieren lógicas inversas para actuadores "Normalmente Cerrados". Negar que la planta "NO está seca" (\(\overline{\overline{B}}\)) devolverá matemáticamente el valor original de "Está seca" (\(B\)), garantizando que la electroválvula abra los mililitros exactos requeridos.</p>
+                        </div>
+                    </div>
+                    <div class="glass-inner p-2"><canvas id="chartP5"></canvas></div>
+                </div>
+            </div>
+
+            <!-- PROPIEDAD 6: CONMUTATIVA INTERSECCION -->
+            <div class="glass-card p-6 md:p-8 relative">
+                <span class="absolute top-4 right-4 bg-blue-600/90 text-white px-3 py-1 rounded-full text-xs font-bold shadow backdrop-blur-sm">VÁLIDA</span>
+                <h3 class="text-2xl font-bold text-gray-900 mb-4">6. Propiedad Conmutativa (Intersección)</h3>
+                <div class="grid md:grid-cols-2 gap-8 items-start">
+                    <div>
+                        <div class="math-box glass-inner p-4 text-center mb-4 shadow-inner">
+                            $$A \cap B = B \cap A$$
+                            $$\min(\mu_A(x), \mu_B(x)) = \min(\mu_B(x), \mu_A(x))$$
+                        </div>
+                        <p class="text-gray-800 mb-4"><strong>Descripción Textual:</strong> El orden de los conjuntos al evaluar una intersección no altera el resultado final de los grados de membresía.</p>
+                        <div class="glass-inner bg-green-50/30 border-l-4 border-green-500 p-4">
+                            <h4 class="font-bold text-green-900 text-sm uppercase tracking-wide mb-1">Aplicación en el Proyecto IoT</h4>
+                            <p class="text-sm text-green-900">En el modelo Machine Learning, evaluar la regla crítica <em>(Temperatura Alta AND Humedad Baja)</em> produce exactamente la misma predicción de estrés que evaluar <em>(Humedad Baja AND Temperatura Alta)</em>. Esto brinda flexibilidad al protocolo de comunicación de los sensores.</p>
+                        </div>
+                    </div>
+                    <div class="glass-inner p-2"><canvas id="chartP6"></canvas></div>
+                </div>
+            </div>
+
+            <!-- PROPIEDAD 7: CONMUTATIVA UNION -->
+            <div class="glass-card p-6 md:p-8 relative">
+                <span class="absolute top-4 right-4 bg-blue-600/90 text-white px-3 py-1 rounded-full text-xs font-bold shadow backdrop-blur-sm">VÁLIDA</span>
+                <h3 class="text-2xl font-bold text-gray-900 mb-4">7. Propiedad Conmutativa (Unión)</h3>
+                <div class="grid md:grid-cols-2 gap-8 items-start">
+                    <div>
+                        <div class="math-box glass-inner p-4 text-center mb-4 shadow-inner">
+                            $$A \cup B = B \cup A$$
+                            $$\max(\mu_A(x), \mu_B(x)) = \max(\mu_B(x), \mu_A(x))$$
+                        </div>
+                        <p class="text-gray-800 mb-4"><strong>Descripción Textual:</strong> Al agrupar elementos bajo el operador de unión (máximo), la disposición inicial de los conjuntos no modifica la curva resultante.</p>
+                        <div class="glass-inner bg-green-50/30 border-l-4 border-green-500 p-4">
+                            <h4 class="font-bold text-green-900 text-sm uppercase tracking-wide mb-1">Aplicación en el Proyecto IoT</h4>
+                            <p class="text-sm text-green-900">Para activar un mecanismo de ventilación, la regla es <em>(Humedad Alta OR Temperatura Alta)</em>. Gracias a la conmutatividad, si la placa Raspberry Pi recibe primero el paquete de datos del termómetro y después el del higrómetro, la decisión de abrir los extractores no se retrasa ni calcula valores erróneos.</p>
+                        </div>
+                    </div>
+                    <div class="glass-inner p-2"><canvas id="chartP7"></canvas></div>
+                </div>
+            </div>
+
+            <!-- PROPIEDAD 8: ASOCIATIVA UNION -->
+            <div class="glass-card p-6 md:p-8 relative">
+                <span class="absolute top-4 right-4 bg-blue-600/90 text-white px-3 py-1 rounded-full text-xs font-bold shadow backdrop-blur-sm">VÁLIDA</span>
+                <h3 class="text-2xl font-bold text-gray-900 mb-4">8. Propiedad Asociativa (Unión)</h3>
+                <div class="grid md:grid-cols-2 gap-8 items-start">
+                    <div>
+                        <div class="math-box glass-inner p-4 text-center mb-4 shadow-inner">
+                            $$(A \cup B) \cup C = A \cup (B \cup C)$$
+                        </div>
+                        <p class="text-gray-800 mb-4"><strong>Descripción Textual:</strong> Cuando se evalúan tres o más conjuntos difusos utilizando únicamente la unión (OR), la forma de agruparlos mediante paréntesis es irrelevante.</p>
+                        <div class="glass-inner bg-green-50/30 border-l-4 border-green-500 p-4">
+                            <h4 class="font-bold text-green-900 text-sm uppercase tracking-wide mb-1">Aplicación en el Proyecto IoT</h4>
+                            <p class="text-sm text-green-900">Si unimos las condiciones de riesgo: (Falta de nutrientes OR Sequía) OR Plaga. El script en Python puede agrupar las variables físicas por un lado y las biológicas por otro sin que la predicción de daño al jitomate se vea sesgada.</p>
+                        </div>
+                    </div>
+                    <div class="glass-inner p-2"><canvas id="chartP8"></canvas></div>
+                </div>
+            </div>
+
+            <!-- PROPIEDAD 9: ASOCIATIVA INTERSECCION -->
+            <div class="glass-card p-6 md:p-8 relative">
+                <span class="absolute top-4 right-4 bg-blue-600/90 text-white px-3 py-1 rounded-full text-xs font-bold shadow backdrop-blur-sm">VÁLIDA</span>
+                <h3 class="text-2xl font-bold text-gray-900 mb-4">9. Propiedad Asociativa (Intersección)</h3>
+                <div class="grid md:grid-cols-2 gap-8 items-start">
+                    <div>
+                        <div class="math-box glass-inner p-4 text-center mb-4 shadow-inner">
+                            $$(A \cap B) \cap C = A \cap (B \cap C)$$
+                        </div>
+                        <p class="text-gray-800 mb-4"><strong>Descripción Textual:</strong> Al intersecar múltiples conjuntos difusos, se puede agrupar cualquier par para evaluar su mínimo primero, obteniendo siempre el mismo vector resultante al final.</p>
+                        <div class="glass-inner bg-green-50/30 border-l-4 border-green-500 p-4">
+                            <h4 class="font-bold text-green-900 text-sm uppercase tracking-wide mb-1">Aplicación en el Proyecto IoT</h4>
+                            <p class="text-sm text-green-900">Para asegurar un riego perfecto, cruzamos: (Humedad Óptima AND Temp Óptima) AND Radiación Ideal. El algoritmo de Machine Learning puede pre-procesar variables climáticas juntas antes de correlacionarlas con la humedad del suelo, haciendo el modelo mucho más ágil.</p>
+                        </div>
+                    </div>
+                    <div class="glass-inner p-2"><canvas id="chartP9"></canvas></div>
+                </div>
+            </div>
+
+            <!-- PROPIEDAD 10: DISTRIBUTIVA 1 -->
+            <div class="glass-card p-6 md:p-8 relative">
+                <span class="absolute top-4 right-4 bg-blue-600/90 text-white px-3 py-1 rounded-full text-xs font-bold shadow backdrop-blur-sm">VÁLIDA</span>
+                <h3 class="text-2xl font-bold text-gray-900 mb-4">10. Propiedad Distributiva (Unión sobre Intersección)</h3>
+                <div class="grid md:grid-cols-2 gap-8 items-start">
+                    <div>
+                        <div class="math-box glass-inner p-4 text-center mb-4 shadow-inner">
+                            $$A \cup (B \cap C) = (A \cup B) \cap (A \cup C)$$
+                        </div>
+                        <p class="text-gray-800 mb-4"><strong>Descripción Textual:</strong> La operación de unión actúa como un factor que se distribuye frente a la intersección de dos conjuntos, tal como ocurre en el álgebra convencional.</p>
+                        <div class="glass-inner bg-green-50/30 border-l-4 border-green-500 p-4">
+                            <h4 class="font-bold text-green-900 text-sm uppercase tracking-wide mb-1">Aplicación en el Proyecto IoT</h4>
+                            <p class="text-sm text-green-900">Regla compleja: <em>"Aplica riego preventivo SI hay Falta de Agua (A) OR (Hace mucho viento (B) AND Hay pleno sol (C))"</em>. Programar esto como reglas distribuidas en la base de conocimientos permite paralelizar el procesamiento lógico en la nube, reduciendo los tiempos de respuesta del sistema de riego.</p>
+                        </div>
+                    </div>
+                    <div class="glass-inner p-2"><canvas id="chartP10"></canvas></div>
+                </div>
+            </div>
+
+            <!-- PROPIEDAD 11: DISTRIBUTIVA 2 -->
+            <div class="glass-card p-6 md:p-8 relative">
+                <span class="absolute top-4 right-4 bg-blue-600/90 text-white px-3 py-1 rounded-full text-xs font-bold shadow backdrop-blur-sm">VÁLIDA</span>
+                <h3 class="text-2xl font-bold text-gray-900 mb-4">11. Propiedad Distributiva (Intersección sobre Unión)</h3>
+                <div class="grid md:grid-cols-2 gap-8 items-start">
+                    <div>
+                        <div class="math-box glass-inner p-4 text-center mb-4 shadow-inner">
+                            $$A \cap (B \cup C) = (A \cap B) \cup (A \cap C)$$
+                        </div>
+                        <p class="text-gray-800 mb-4"><strong>Descripción Textual:</strong> La intersección se distribuye frente a la unión de dos conjuntos, garantizando simetría matemática con la propiedad anterior.</p>
+                        <div class="glass-inner bg-green-50/30 border-l-4 border-green-500 p-4">
+                            <h4 class="font-bold text-green-900 text-sm uppercase tracking-wide mb-1">Aplicación en el Proyecto IoT</h4>
+                            <p class="text-sm text-green-900">Garantiza que la refactorización de las sentencias <code>if-then</code> escritas en el código de Python de la placa Raspberry Pi sean lógicamente idénticas, evitando así la programación espagueti al analizar combinaciones entre la Humedad y diversos sensores climáticos en el invernadero.</p>
+                        </div>
+                    </div>
+                    <div class="glass-inner p-2"><canvas id="chartP11"></canvas></div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- REFERENCIAS BIBLIOGRÁFICAS APA 7 -->
+        <section class="mt-16 border-t border-gray-400/30 pt-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6 drop-shadow-sm">Referencias Bibliográficas</h2>
+            <div class="glass-inner p-8 text-base text-gray-800 space-y-5">
+                <p class="pl-8 -indent-8">Htwe, M. M., Filchev, L. H., et al. (2026). An IoT-driven predictive analytics framework for dynamic irrigation optimization in tomato cultivation. <em>Mathematical Biosciences and Engineering</em>, 23(1), 242-265. https://doi.org/10.3934/mbe.2026010</p>
+                <p class="pl-8 -indent-8">Kim, J., et al. (2025). Machine Learning for Reference Crop Evapotranspiration Modeling: A State-of-the-Art Review and Future Directions. <em>Agronomy</em>, 15(9), 2038. https://doi.org/10.3390/agronomy15092038</p>
+                <p class="pl-8 -indent-8">Maldonado-Peralta, R., Maldonado-Peralta, M. d. I. Á., Rojas-Garcia, A. R., & Salinas-Vargas, D. (2021). Efecto del estrés hídrico en poblaciones nativas de tomate mexicano. <em>Ecosistemas y Recursos Agropecuarios</em>, 8(II), e2889. https://doi.org/10.19136/era.a8nII.2889</p>
+                <p class="pl-8 -indent-8">Zadeh, L. A. (1965). Fuzzy sets. <em>Information and control</em>, 8(3), 338-353. https://doi.org/10.1016/S0019-9958(65)90241-X</p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- SCRIPT PARA GENERAR LAS GRÁFICAS -->
+    <script>
+        // Eje X: Humedad del Suelo (%)
+        const labelsHumedad = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
+        
+        // Conjuntos Difusos Base (Ajustados agronómicamente al jitomate)
+        const mu_B = [1.0, 1.0, 0.8, 0.5, 0.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]; // B: Baja (Estrés por Sequía)
+        const mu_A = [0.0, 0.0, 0.0, 0.2, 0.6, 1.0, 1.0, 0.6, 0.2, 0.0, 0.0]; // A: Óptima (Absorción Ideal)
+        const mu_C = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.2, 0.6, 1.0, 1.0]; // C: Alta (Asfixia/Hongos)
+
+        // Datasets base que aparecerán de FONDO en TODAS las gráficas para dar contexto espacial
+        const baseDatasets = [
+            { label: 'A (Óptima)', data: mu_A, borderColor: 'rgba(46, 204, 113, 0.4)', borderDash: [4, 4], borderWidth: 2, fill: false, pointRadius: 0, tension: 0.3 },
+            { label: 'B (Baja)', data: mu_B, borderColor: 'rgba(231, 76, 60, 0.4)', borderDash: [4, 4], borderWidth: 2, fill: false, pointRadius: 0, tension: 0.3 },
+            { label: 'C (Alta)', data: mu_C, borderColor: 'rgba(52, 152, 219, 0.4)', borderDash: [4, 4], borderWidth: 2, fill: false, pointRadius: 0, tension: 0.3 }
+        ];
+
+        // Configuración de fuente global para legibilidad en fondo translúcido
+        Chart.defaults.color = '#334155';
+        Chart.defaults.font.family = "'Segoe UI', Roboto, 'Helvetica Neue', sans-serif";
+
+        // Helper para crear gráficas integrando los 3 conjuntos de fondo y resaltando la operación
+        function createChart(ctxId, title, operationDatasets, yMax=1.1) {
+            const combinedDatasets = [...baseDatasets, ...operationDatasets];
+
+            new Chart(document.getElementById(ctxId), {
+                type: 'line',
+                data: { labels: labelsHumedad, datasets: combinedDatasets },
+                options: {
+                    responsive: true,
+                    plugins: { 
+                        legend: { position: 'bottom', labels: { boxWidth: 12, font: {size: 11} } }, 
+                        title: { display: true, text: title, font: {size: 14, weight: 'bold'}, color: '#1e293b' } 
+                    },
+                    scales: {
+                        y: { beginAtZero: true, max: yMax, grid: { color: 'rgba(0,0,0,0.05)' }, title: { display: true, text: 'Membresía μ(x)' } },
+                        x: { grid: { color: 'rgba(0,0,0,0.05)' }, title: { display: true, text: 'Humedad del Suelo (%)' } }
+                    }
+                }
+            });
+        }
+
+        // Gráfica de Contexto Inicial
+        new Chart(document.getElementById('chartIntro'), {
+            type: 'line',
+            data: {
+                labels: labelsHumedad,
+                datasets: [
+                    { label: 'Conjunto B (Sequía)', data: mu_B, borderColor: '#e74c3c', backgroundColor: 'rgba(231, 76, 60, 0.25)', fill: true, tension: 0.3 },
+                    { label: 'Conjunto A (Óptima)', data: mu_A, borderColor: '#2ecc71', backgroundColor: 'rgba(46, 204, 113, 0.25)', fill: true, tension: 0.3 },
+                    { label: 'Conjunto C (Asfixia)', data: mu_C, borderColor: '#3498db', backgroundColor: 'rgba(52, 152, 219, 0.25)', fill: true, tension: 0.3 }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { position: 'bottom' }, title: { display: true, text: 'Universo de Discurso: Humedad del Suelo en el cultivo de Jitomate', font: {size: 15, weight: 'bold'}, color: '#1e293b' } },
+                scales: { y: { beginAtZero: true, max: 1.1, grid: {color: 'rgba(0,0,0,0.05)'}, title: { display: true, text: 'Grado de Membresía μ(x)' } }, x: { grid: {color: 'rgba(0,0,0,0.05)'}, title: { display: true, text: 'Humedad del Suelo (%)' } } }
+            }
+        });
+
+        // 1. Contradicción
+        const not_A = mu_A.map(v => 1 - v);
+        const contra = mu_A.map((v, i) => Math.min(v, not_A[i]));
+        createChart('chartP1', 'A ∩ Not(A) (Transición Suave)', [
+            { label: 'Not(A)', data: not_A, borderColor: '#64748b', borderDash: [2,2], borderWidth: 2, pointRadius: 0, tension: 0.3 },
+            { label: 'Operación: A ∩ Not(A)', data: contra, borderColor: '#b91c1c', backgroundColor: 'rgba(185, 28, 28, 0.6)', fill: true, tension: 0.3, borderWidth: 4 }
+        ]);
+
+        // 2. Exclusión del Tercero
+        const excl = mu_A.map((v, i) => Math.max(v, not_A[i]));
+        createChart('chartP2', 'A ∪ Not(A) (Zonas de Incertidumbre)', [
+            { label: 'Not(A)', data: not_A, borderColor: '#64748b', borderDash: [2,2], borderWidth: 2, pointRadius: 0, tension: 0.3 },
+            { label: 'Operación: A ∪ Not(A)', data: excl, borderColor: '#c2410c', backgroundColor: 'rgba(194, 65, 12, 0.3)', fill: true, tension: 0.3, borderWidth: 4 }
+        ]);
+
+        // 3. Idempotencia Intersección
+        const idemInt = mu_A.map((v, i) => Math.min(v, mu_A[i]));
+        createChart('chartP3', 'A ∩ A = A', [
+            { label: 'Operación: A ∩ A (Superpuesto a Óptima)', data: idemInt, borderColor: '#15803d', borderDash: [10,5], borderWidth: 4, tension: 0.3 }
+        ]);
+
+        // 4. Idempotencia Unión
+        const idemUni = mu_A.map((v, i) => Math.max(v, mu_A[i]));
+        createChart('chartP4', 'A ∪ A = A', [
+            { label: 'Operación: A ∪ A (Superpuesto a Óptima)', data: idemUni, borderColor: '#0369a1', borderDash: [10,5], borderWidth: 4, tension: 0.3 }
+        ]);
+
+        // 5. Doble Negación
+        const not_not_A = not_A.map(v => 1 - v);
+        createChart('chartP5', 'Not(Not(A)) = A', [
+            { label: 'Not(A) intermedio', data: not_A, borderColor: '#475569', borderWidth: 2, pointRadius: 0, tension: 0.3 },
+            { label: 'Operación: Not(Not(A))', data: not_not_A, borderColor: '#047857', borderDash: [15,5], borderWidth: 4, tension: 0.3 }
+        ]);
+
+        // 6. Conmutativa Intersección
+        const A_int_B = mu_A.map((v, i) => Math.min(v, mu_B[i]));
+        const B_int_A = mu_B.map((v, i) => Math.min(v, mu_A[i]));
+        createChart('chartP6', 'A ∩ B = B ∩ A', [
+            { label: 'A ∩ B', data: A_int_B, borderColor: '#7e22ce', borderWidth: 6, tension: 0.3 },
+            { label: 'B ∩ A', data: B_int_A, borderColor: '#ca8a04', borderDash: [10,10], borderWidth: 4, tension: 0.3 }
+        ]);
+
+        // 7. Conmutativa Unión
+        const A_union_B = mu_A.map((v, i) => Math.max(v, mu_B[i]));
+        const B_union_A = mu_B.map((v, i) => Math.max(v, mu_A[i]));
+        createChart('chartP7', 'A ∪ B = B ∪ A', [
+            { label: 'A ∪ B', data: A_union_B, borderColor: '#1e293b', borderWidth: 6, tension: 0.3 },
+            { label: 'B ∪ A', data: B_union_A, borderColor: '#b91c1c', borderDash: [10,10], borderWidth: 4, tension: 0.3 }
+        ]);
+
+        // 8. Asociativa Unión
+        const B_union_C = mu_B.map((v, i) => Math.max(v, mu_C[i]));
+        const asoc_uni_izq = A_union_B.map((v, i) => Math.max(v, mu_C[i])); 
+        const asoc_uni_der = mu_A.map((v, i) => Math.max(v, B_union_C[i])); 
+        createChart('chartP8', '(A ∪ B) ∪ C = A ∪ (B ∪ C)', [
+            { label: '(A ∪ B) ∪ C', data: asoc_uni_izq, borderColor: '#0d9488', borderWidth: 6, tension: 0.3 },
+            { label: 'A ∪ (B ∪ C)', data: asoc_uni_der, borderColor: '#c2410c', borderDash: [10,10], borderWidth: 4, tension: 0.3 }
+        ]);
+
+        // 9. Asociativa Intersección
+        const B_int_C = mu_B.map((v, i) => Math.min(v, mu_C[i])); 
+        const asoc_int_izq = A_int_B.map((v, i) => Math.min(v, mu_C[i])); 
+        const asoc_int_der = mu_A.map((v, i) => Math.min(v, B_int_C[i])); 
+        createChart('chartP9', '(A ∩ B) ∩ C = A ∩ (B ∩ C)', [
+            { label: '(A ∩ B) ∩ C (Cero absoluto)', data: asoc_int_izq, borderColor: '#1e293b', borderWidth: 6, tension: 0.3 },
+            { label: 'A ∩ (B ∩ C)', data: asoc_int_der, borderColor: '#b45309', borderDash: [10,10], borderWidth: 4, tension: 0.3 }
+        ]);
+
+        // 10. Distributiva 1 (Unión sobre intersección)
+        const dist1_izq = mu_A.map((v, i) => Math.max(v, B_int_C[i])); 
+        const A_union_C = mu_A.map((v, i) => Math.max(v, mu_C[i]));
+        const dist1_der = A_union_B.map((v, i) => Math.min(v, A_union_C[i])); 
+        createChart('chartP10', 'A ∪ (B ∩ C) = (A ∪ B) ∩ (A ∪ C)', [
+            { label: 'A ∪ (B ∩ C)', data: dist1_izq, borderColor: '#334155', borderWidth: 6, tension: 0.3 },
+            { label: '(A ∪ B) ∩ (A ∪ C)', data: dist1_der, borderColor: '#9333ea', borderDash: [10,10], borderWidth: 4, tension: 0.3 }
+        ]);
+
+        // 11. Distributiva 2 (Intersección sobre Unión)
+        const dist2_izq = mu_A.map((v, i) => Math.min(v, B_union_C[i])); 
+        const A_int_C = mu_A.map((v, i) => Math.min(v, mu_C[i]));
+        const dist2_der = A_int_B.map((v, i) => Math.max(v, A_int_C[i])); 
+        createChart('chartP11', 'A ∩ (B ∪ C) = (A ∩ B) ∪ (A ∩ C)', [
+            { label: 'A ∩ (B ∪ C)', data: dist2_izq, borderColor: '#0284c7', borderWidth: 6, tension: 0.3 },
+            { label: '(A ∩ B) ∪ (A ∩ C)', data: dist2_der, borderColor: '#b91c1c', borderDash: [10,10], borderWidth: 4, tension: 0.3 }
+        ]);
+    </script>
+</body>
+</html>
