@@ -1,815 +1,1983 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Protocolo e Inferencia Difusa - Proyecto Jitomate</title>
     <!-- Tailwind CSS para diseño moderno y responsivo -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js para la generación dinámica de gráficas -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- MathJax para renderizado de notación matemática -->
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script
+      id="MathJax-script"
+      async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    ></script>
     <style>
-        /* --- ANIMACIÓN METABALL (Fondo Fluido) --- */
-        body { margin: 0; background-color: #e2e8f0; position: relative; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; transition: background-color 0.4s ease; overflow-x: hidden; }
-        .liquid-bg-container { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; overflow: hidden; background: #f8fafc; transition: background 0.4s ease; }
-        .liquid-bg-gooey { width: 100%; height: 100%; position: absolute; top: 0; left: 0; filter: url('#goo'); }
-        .orb { position: absolute; border-radius: 50%; opacity: 0.9; }
-        
-        /* Esferas de color animadas */
-        .orb-red { width: 45vw; height: 45vw; background: #ff7675; top: -10%; left: -10%; animation: move-red 28s infinite ease-in-out, morph 12s infinite ease-in-out; }
-        .orb-green { width: 40vw; height: 40vw; background: #55efc4; bottom: -15%; right: -10%; animation: move-green 32s infinite ease-in-out, morph 14s infinite ease-in-out; animation-delay: -5s; }
-        .orb-blue { width: 35vw; height: 35vw; background: #74b9ff; top: 40%; left: 30%; animation: move-blue 25s infinite ease-in-out, morph 10s infinite ease-in-out; animation-delay: -10s; }
-        
-        /* Trayectorias por toda la pantalla */
-        @keyframes move-red { 0% { transform: translate(0, 0) scale(1); } 33% { transform: translate(60vw, 40vh) scale(1.1); } 66% { transform: translate(20vw, 80vh) scale(0.9); } 100% { transform: translate(0, 0) scale(1); } }
-        @keyframes move-green { 0% { transform: translate(0, 0) scale(1); } 33% { transform: translate(-50vw, -60vh) scale(1.2); } 66% { transform: translate(-70vw, 10vh) scale(0.8); } 100% { transform: translate(0, 0) scale(1); } }
-        @keyframes move-blue { 0% { transform: translate(0, 0) scale(1); } 33% { transform: translate(30vw, -50vh) scale(0.8); } 66% { transform: translate(-40vw, -20vh) scale(1.2); } 100% { transform: translate(0, 0) scale(1); } }
-        @keyframes morph { 0%, 100% { border-radius: 40% 60% 70% 30% / 40% 40% 60% 50%; } 34% { border-radius: 70% 30% 50% 50% / 30% 30% 70% 70%; } 67% { border-radius: 100% 60% 60% 100% / 100% 100% 60% 60%; } }
-        
-        /* --- ESTILOS DE TARJETAS GLASSMORPHISM --- */
-        .glass-card { background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(18px) saturate(120%); -webkit-backdrop-filter: blur(18px) saturate(120%); border: 1px solid rgba(255, 255, 255, 0.8); border-radius: 16px; box-shadow: 0 10px 40px 0 rgba(31, 38, 135, 0.07); transition: all 0.4s ease; }
-        .glass-inner { background: rgba(255, 255, 255, 0.45); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.6); border-radius: 12px; transition: all 0.4s ease; }
-        .tomato-gradient { background: linear-gradient(135deg, rgba(169, 36, 25, 0.95) 0%, rgba(220, 53, 34, 0.95) 100%); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255, 255, 255, 0.2); }
-        
-        .nav-link { transition: all 0.3s ease; }
-        .nav-link:hover { background: rgba(255,255,255,0.25); border-radius: 6px; transform: translateY(-2px); }
-        
-        /* Estilos formales para tipografía */
-        h1, h2, h3, h4 { font-family: 'Georgia', serif; }
-        .math-box { font-size: 1.15rem; overflow-x: auto; padding: 1rem; transition: all 0.4s ease; }
+      /* --- ANIMACIÓN METABALL (Fondo Fluido) --- */
+      body {
+        margin: 0;
+        background-color: #e2e8f0;
+        position: relative;
+        font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        transition: background-color 0.4s ease;
+        overflow-x: hidden;
+      }
+      .liquid-bg-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: -1;
+        overflow: hidden;
+        background: #f8fafc;
+        transition: background 0.4s ease;
+      }
+      .liquid-bg-gooey {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        filter: url("#goo");
+      }
+      .orb {
+        position: absolute;
+        border-radius: 50%;
+        opacity: 0.9;
+      }
 
-        /* --- CLASES DE MODO OSCURO (Dark Mode) --- */
-        body.dark-mode { background-color: #0f172a; color: #f8fafc; }
-        .dark-mode .liquid-bg-container { background: #020617; }
-        .dark-mode .glass-card { background: rgba(30, 41, 59, 0.75); border-color: rgba(255, 255, 255, 0.15); box-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.5); }
-        .dark-mode .glass-inner { background: rgba(15, 23, 42, 0.65); border-color: rgba(255, 255, 255, 0.1); }
-        .dark-mode .text-gray-900, .dark-mode .text-gray-800, .dark-mode .text-gray-700 { color: #f1f5f9 !important; }
-        .dark-mode .text-gray-600 { color: #cbd5e1 !important; }
-        .dark-mode .bg-white\/40, .dark-mode .bg-white\/30, .dark-mode .bg-white\/50, .dark-mode .bg-white\/60 { background-color: rgba(30, 41, 59, 0.5) !important; }
-        .dark-mode .bg-gray-50\/50, .dark-mode .bg-gray-100 { background-color: rgba(15, 23, 42, 0.5) !important; }
-        .dark-mode .math-box { background-color: rgba(2, 6, 23, 0.5) !important; border-color: rgba(255,255,255,0.1); }
-        .dark-mode .nav-link { color: #f8fafc; }
-        .dark-mode .border-gray-300\/50, .dark-mode .border-gray-200, .dark-mode .border-white\/60, .dark-mode .border-white\/40 { border-color: rgba(255,255,255,0.1); }
-        .dark-mode .text-yellow-600 { color: #fbbf24 !important; }
-        .dark-mode .text-purple-700 { color: #c084fc !important; }
-        .dark-mode .text-teal-700 { color: #2dd4bf !important; }
-        .dark-mode .text-blue-800 { color: #60a5fa !important; }
-        .dark-mode .text-red-700, .dark-mode .text-red-600 { color: #f87171 !important; }
-        .dark-mode .text-green-700, .dark-mode .text-green-600 { color: #4ade80 !important; }
-        .dark-mode .bg-blue-50\/80 { background-color: rgba(30, 58, 138, 0.4) !important; }
-        .dark-mode .bg-green-50\/80 { background-color: rgba(20, 83, 45, 0.4) !important; }
-        
-        /* Controles interactivos */
-        #theme-toggle { cursor: pointer; transition: transform 0.3s ease; }
-        #theme-toggle:hover { transform: scale(1.1); }
-        
-        /* Barra de Progreso de Lectura */
-        #scroll-progress { position: fixed; top: 0; left: 0; height: 4px; background: #fbbf24; z-index: 100; width: 0%; transition: width 0.1s; }
-        
-        /* Animaciones al Scroll (Fade-in-up) */
-        .reveal { opacity: 0; transform: translateY(50px); transition: all 0.8s ease-out; }
-        .reveal.active { opacity: 1; transform: translateY(0); }
+      /* Esferas de color animadas */
+      .orb-red {
+        width: 45vw;
+        height: 45vw;
+        background: #ff7675;
+        top: -10%;
+        left: -10%;
+        animation:
+          move-red 28s infinite ease-in-out,
+          morph 12s infinite ease-in-out;
+      }
+      .orb-green {
+        width: 40vw;
+        height: 40vw;
+        background: #55efc4;
+        bottom: -15%;
+        right: -10%;
+        animation:
+          move-green 32s infinite ease-in-out,
+          morph 14s infinite ease-in-out;
+        animation-delay: -5s;
+      }
+      .orb-blue {
+        width: 35vw;
+        height: 35vw;
+        background: #74b9ff;
+        top: 40%;
+        left: 30%;
+        animation:
+          move-blue 25s infinite ease-in-out,
+          morph 10s infinite ease-in-out;
+        animation-delay: -10s;
+      }
 
-        /* Estilo para el slider (Simulador) */
-        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 24px; width: 24px; border-radius: 50%; background: #3b82f6; cursor: pointer; margin-top: -8px; box-shadow: 0 0 10px rgba(0,0,0,0.3); }
-        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 8px; cursor: pointer; background: #cbd5e1; border-radius: 4px; }
-        .dark-mode input[type=range]::-webkit-slider-runnable-track { background: #475569; }
+      /* Trayectorias por toda la pantalla */
+      @keyframes move-red {
+        0% {
+          transform: translate(0, 0) scale(1);
+        }
+        33% {
+          transform: translate(60vw, 40vh) scale(1.1);
+        }
+        66% {
+          transform: translate(20vw, 80vh) scale(0.9);
+        }
+        100% {
+          transform: translate(0, 0) scale(1);
+        }
+      }
+      @keyframes move-green {
+        0% {
+          transform: translate(0, 0) scale(1);
+        }
+        33% {
+          transform: translate(-50vw, -60vh) scale(1.2);
+        }
+        66% {
+          transform: translate(-70vw, 10vh) scale(0.8);
+        }
+        100% {
+          transform: translate(0, 0) scale(1);
+        }
+      }
+      @keyframes move-blue {
+        0% {
+          transform: translate(0, 0) scale(1);
+        }
+        33% {
+          transform: translate(30vw, -50vh) scale(0.8);
+        }
+        66% {
+          transform: translate(-40vw, -20vh) scale(1.2);
+        }
+        100% {
+          transform: translate(0, 0) scale(1);
+        }
+      }
+      @keyframes morph {
+        0%,
+        100% {
+          border-radius: 40% 60% 70% 30% / 40% 40% 60% 50%;
+        }
+        34% {
+          border-radius: 70% 30% 50% 50% / 30% 30% 70% 70%;
+        }
+        67% {
+          border-radius: 100% 60% 60% 100% / 100% 100% 60% 60%;
+        }
+      }
+
+      /* --- ESTILOS DE TARJETAS GLASSMORPHISM --- */
+      .glass-card {
+        background: rgba(255, 255, 255, 0.65);
+        backdrop-filter: blur(18px) saturate(120%);
+        -webkit-backdrop-filter: blur(18px) saturate(120%);
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        border-radius: 16px;
+        box-shadow: 0 10px 40px 0 rgba(31, 38, 135, 0.07);
+        transition: all 0.4s ease;
+      }
+      .glass-inner {
+        background: rgba(255, 255, 255, 0.45);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        border-radius: 12px;
+        transition: all 0.4s ease;
+      }
+      .tomato-gradient {
+        background: linear-gradient(
+          135deg,
+          rgba(169, 36, 25, 0.95) 0%,
+          rgba(220, 53, 34, 0.95) 100%
+        );
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .nav-link {
+        transition: all 0.3s ease;
+      }
+      .nav-link:hover {
+        background: rgba(255, 255, 255, 0.25);
+        border-radius: 6px;
+        transform: translateY(-2px);
+      }
+
+      /* Estilos formales para tipografía */
+      h1,
+      h2,
+      h3,
+      h4 {
+        font-family: "Georgia", serif;
+      }
+      .math-box {
+        font-size: 1.15rem;
+        overflow-x: auto;
+        padding: 1rem;
+        transition: all 0.4s ease;
+      }
+
+      /* --- CLASES DE MODO OSCURO (Dark Mode) --- */
+      body.dark-mode {
+        background-color: #0f172a;
+        color: #f8fafc;
+      }
+      .dark-mode .liquid-bg-container {
+        background: #020617;
+      }
+      .dark-mode .glass-card {
+        background: rgba(30, 41, 59, 0.75);
+        border-color: rgba(255, 255, 255, 0.15);
+        box-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.5);
+      }
+      .dark-mode .glass-inner {
+        background: rgba(15, 23, 42, 0.65);
+        border-color: rgba(255, 255, 255, 0.1);
+      }
+      .dark-mode .text-gray-900,
+      .dark-mode .text-gray-800,
+      .dark-mode .text-gray-700 {
+        color: #f1f5f9 !important;
+      }
+      .dark-mode .text-gray-600 {
+        color: #cbd5e1 !important;
+      }
+      .dark-mode .bg-white\/40,
+      .dark-mode .bg-white\/30,
+      .dark-mode .bg-white\/50,
+      .dark-mode .bg-white\/60 {
+        background-color: rgba(30, 41, 59, 0.5) !important;
+      }
+      .dark-mode .bg-gray-50\/50,
+      .dark-mode .bg-gray-100 {
+        background-color: rgba(15, 23, 42, 0.5) !important;
+      }
+      .dark-mode .math-box {
+        background-color: rgba(2, 6, 23, 0.5) !important;
+        border-color: rgba(255, 255, 255, 0.1);
+      }
+      .dark-mode .nav-link {
+        color: #f8fafc;
+      }
+      .dark-mode .border-gray-300\/50,
+      .dark-mode .border-gray-200,
+      .dark-mode .border-white\/60,
+      .dark-mode .border-white\/40 {
+        border-color: rgba(255, 255, 255, 0.1);
+      }
+      .dark-mode .text-yellow-600 {
+        color: #fbbf24 !important;
+      }
+      .dark-mode .text-purple-700 {
+        color: #c084fc !important;
+      }
+      .dark-mode .text-teal-700 {
+        color: #2dd4bf !important;
+      }
+      .dark-mode .text-blue-800 {
+        color: #60a5fa !important;
+      }
+      .dark-mode .text-red-700,
+      .dark-mode .text-red-600 {
+        color: #f87171 !important;
+      }
+      .dark-mode .text-green-700,
+      .dark-mode .text-green-600 {
+        color: #4ade80 !important;
+      }
+      .dark-mode .bg-blue-50\/80 {
+        background-color: rgba(30, 58, 138, 0.4) !important;
+      }
+      .dark-mode .bg-green-50\/80 {
+        background-color: rgba(20, 83, 45, 0.4) !important;
+      }
+
+      /* Controles interactivos */
+      #theme-toggle {
+        cursor: pointer;
+        transition: transform 0.3s ease;
+      }
+      #theme-toggle:hover {
+        transform: scale(1.1);
+      }
+
+      /* Barra de Progreso de Lectura */
+      #scroll-progress {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 4px;
+        background: #fbbf24;
+        z-index: 100;
+        width: 0%;
+        transition: width 0.1s;
+      }
+
+      /* Animaciones al Scroll (Fade-in-up) */
+      .reveal {
+        opacity: 0;
+        transform: translateY(50px);
+        transition: all 0.8s ease-out;
+      }
+      .reveal.active {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      /* Estilo para el slider (Simulador) */
+      input[type="range"] {
+        -webkit-appearance: none;
+        width: 100%;
+        background: transparent;
+      }
+      input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        height: 24px;
+        width: 24px;
+        border-radius: 50%;
+        background: #3b82f6;
+        cursor: pointer;
+        margin-top: -8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      }
+      input[type="range"]::-webkit-slider-runnable-track {
+        width: 100%;
+        height: 8px;
+        cursor: pointer;
+        background: #cbd5e1;
+        border-radius: 4px;
+      }
+      .dark-mode input[type="range"]::-webkit-slider-runnable-track {
+        background: #475569;
+      }
     </style>
-</head>
-<body class="text-gray-900 antialiased">
-
+  </head>
+  <body class="text-gray-900 antialiased">
     <!-- BARRA DE PROGRESO DE LECTURA -->
     <div id="scroll-progress"></div>
 
     <!-- FONDO ANIMADO CON EFECTO METABALL -->
     <div class="liquid-bg-container">
-        <div class="liquid-bg-gooey">
-            <div class="orb orb-red"></div>
-            <div class="orb orb-green"></div>
-            <div class="orb orb-blue"></div>
-        </div>
+      <div class="liquid-bg-gooey">
+        <div class="orb orb-red"></div>
+        <div class="orb orb-green"></div>
+        <div class="orb orb-blue"></div>
+      </div>
     </div>
 
     <!-- FILTRO SVG PARA LOGRAR LA FUSIÓN LÍQUIDA (GOOEY) -->
-    <svg style="width:0;height:0;position:absolute;" aria-hidden="true" focusable="false">
-        <defs>
-            <filter id="goo">
-                <feGaussianBlur in="SourceGraphic" stdDeviation="40" result="blur" />
-                <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 60 -30" result="goo" />
-            </filter>
-        </defs>
+    <svg
+      style="width: 0; height: 0; position: absolute"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <filter id="goo">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="40" result="blur" />
+          <feColorMatrix
+            in="blur"
+            mode="matrix"
+            values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 60 -30"
+            result="goo"
+          />
+        </filter>
+      </defs>
     </svg>
 
     <!-- MENÚ DE NAVEGACIÓN Y MODO OSCURO -->
-    <nav class="fixed top-0 w-full z-50 bg-white/30 backdrop-blur-md border-b border-white/40 py-3 shadow-sm transition-colors duration-400 mt-1">
-        <div class="max-w-7xl mx-auto px-4 flex flex-wrap justify-between items-center">
-            <div class="flex gap-2 md:gap-4 text-xs md:text-sm font-bold uppercase tracking-wider text-gray-800">
-                <a href="#actividad7" class="nav-link px-3 py-1">I. Objetivos</a>
-                <a href="#actividad8" class="nav-link px-3 py-1">II. Justificación</a>
-                <a href="#fundamentos" class="nav-link px-3 py-1">III. Marco Teórico</a>
-                <a href="#actividad5" class="nav-link px-3 py-1">IV. Sistema Difuso (Act. 5)</a>
-            </div>
-            <!-- Botón Dark Mode -->
-            <button id="theme-toggle" class="p-2 rounded-full bg-white/50 hover:bg-white/80 shadow text-gray-800" title="Cambiar Tema">
-                <!-- Icono de Luna por defecto -->
-                <svg id="theme-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                </svg>
-            </button>
+    <nav
+      class="fixed top-0 w-full z-50 bg-white/30 backdrop-blur-md border-b border-white/40 py-3 shadow-sm transition-colors duration-400 mt-1"
+    >
+      <div
+        class="max-w-7xl mx-auto px-4 flex flex-wrap justify-between items-center"
+      >
+        <div
+          class="flex gap-2 md:gap-4 text-xs md:text-sm font-bold uppercase tracking-wider text-gray-800"
+        >
+          <a href="#actividad7" class="nav-link px-3 py-1">I. Objetivos</a>
+          <a href="#actividad8" class="nav-link px-3 py-1">II. Justificación</a>
+          <a href="#fundamentos" class="nav-link px-3 py-1"
+            >III. Marco Teórico</a
+          >
+          <a href="#actividad5" class="nav-link px-3 py-1"
+            >IV. Sistema Difuso (Act. 5)</a
+          >
         </div>
+        <!-- Botón Dark Mode -->
+        <button
+          id="theme-toggle"
+          class="p-2 rounded-full bg-white/50 hover:bg-white/80 shadow text-gray-800"
+          title="Cambiar Tema"
+        >
+          <!-- Icono de Luna por defecto -->
+          <svg
+            id="theme-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+      </div>
     </nav>
 
     <!-- ENCABEZADO -->
-    <header class="tomato-gradient text-white py-24 px-6 shadow-xl mb-12 pt-32 reveal active">
-        <div class="max-w-7xl mx-auto relative z-10">
-            <h2 class="text-sm font-bold tracking-widest uppercase text-red-200 mb-3 border-b border-red-300/30 pb-2 inline-block">TecNM Campus Zacapoaxtla | Maestría en Inteligencia Artificial</h2>
-            <h1 class="text-4xl md:text-5xl font-extrabold mb-6 leading-tight tracking-tight text-white drop-shadow-md">
-                Aplicación de Lógica Difusa para Evitar el Estrés Hídrico en Cultivos de Jitomate
-            </h1>
-            <p class="text-xl text-red-50 font-light max-w-4xl mb-8 italic">
-                Integración de conceptos de lógica difusa y planteamiento de mi proyecto de investigación.
-            </p>
-            <div class="border-t border-red-300/40 pt-5 flex flex-col md:flex-row justify-between text-sm font-medium">
-                <p><strong>Autor:</strong> Carlos Alberto Salazar Martínez (Matrícula: 26ZPM017)</p>
-                <p><strong>Docente:</strong> Mtro. José Miguel Méndez Alonso</p>
-            </div>
+    <header
+      class="tomato-gradient text-white py-24 px-6 shadow-xl mb-12 pt-32 reveal active"
+    >
+      <div class="max-w-7xl mx-auto relative z-10">
+        <h2
+          class="text-sm font-bold tracking-widest uppercase text-red-200 mb-3 border-b border-red-300/30 pb-2 inline-block"
+        >
+          TecNM Campus Zacapoaxtla | Maestría en Inteligencia Artificial
+        </h2>
+        <h1
+          class="text-4xl md:text-5xl font-extrabold mb-6 leading-tight tracking-tight text-white drop-shadow-md"
+        >
+          Aplicación de Lógica Difusa para Evitar el Estrés Hídrico en Cultivos
+          de Jitomate
+        </h1>
+        <p class="text-xl text-red-50 font-light max-w-4xl mb-8 italic">
+          Integración de conceptos de lógica difusa y planteamiento de mi
+          proyecto de investigación.
+        </p>
+        <div
+          class="border-t border-red-300/40 pt-5 flex flex-col md:flex-row justify-between text-sm font-medium"
+        >
+          <p>
+            <strong>Autor:</strong> Carlos Alberto Salazar Martínez (Matrícula:
+            26ZPM017)
+          </p>
+          <p><strong>Docente:</strong> Mtro. José Miguel Méndez Alonso</p>
         </div>
+      </div>
     </header>
 
     <main class="max-w-7xl mx-auto px-4 pb-24 relative z-10 space-y-16">
+      <!-- ================= SECCIÓN I: ACTIVIDAD 7 ================= -->
+      <section
+        id="actividad7"
+        class="glass-card p-8 md:p-10 border-l-8 border-yellow-500 reveal"
+      >
+        <header class="mb-8 border-b border-gray-300/50 pb-4">
+          <span
+            class="bg-yellow-500 text-white px-3 py-1 rounded-md text-sm font-bold uppercase tracking-wider mb-2 inline-block"
+            >Actividad 7</span
+          >
+          <h2 class="text-3xl font-bold text-gray-900">
+            Sección I: Introducción y Objetivos
+          </h2>
+        </header>
 
-        <!-- ================= SECCIÓN I: ACTIVIDAD 7 ================= -->
-        <section id="actividad7" class="glass-card p-8 md:p-10 border-l-8 border-yellow-500 reveal">
-            <header class="mb-8 border-b border-gray-300/50 pb-4">
-                <span class="bg-yellow-500 text-white px-3 py-1 rounded-md text-sm font-bold uppercase tracking-wider mb-2 inline-block">Actividad 7</span>
-                <h2 class="text-3xl font-bold text-gray-900">Sección I: Introducción y Objetivos</h2>
-            </header>
-            
-            <div class="space-y-8">
-                <div class="glass-inner p-6 md:p-8">
-                    <h3 class="text-2xl font-bold text-gray-800 mb-4 text-yellow-600">Introducción</h3>
-                    <p class="text-gray-800 text-justify leading-relaxed text-lg">
-                        El riego en los invernaderos de jitomate es una tarea muy importante, ya que si la planta recibe mucha o muy poca agua, su crecimiento se afecta y se echa a perder la cosecha (Maldonado-Peralta et al., 2021). Sin embargo, los sistemas de riego actuales funcionan casi siempre de manera tajante: o la llave del agua está completamente abierta o está completamente cerrada.<br><br>
-                        Ante este problema, la lógica difusa es una gran herramienta porque nos permite analizar las condiciones del suelo de una forma más parecida a como lo haría un humano. En lugar de decir "el suelo está seco al 100%", podemos usar palabras como "el suelo está un poco seco" o "está muy húmedo". Esto nos permite tomar decisiones intermedias, abriendo la llave del agua solo lo necesario (Mamdani & Assilian, 1975).<br><br>
-                        En este proyecto propongo crear un sistema basado en lógica difusa que evalúe si el jitomate está sufriendo estrés por falta de agua (o exceso de ella) analizando los datos que nos mandan los sensores. Así, podremos tener un control de riego mucho más inteligente y flexible.
-                    </p>
-                </div>
-
-                <div class="grid md:grid-cols-2 gap-8">
-                    <div class="glass-inner p-6 md:p-8 bg-white/40 hover:shadow-lg transition-shadow">
-                        <h3 class="text-xl font-bold text-gray-800 mb-4 text-center border-b border-gray-300 pb-2">Objetivo General</h3>
-                        <p class="text-center text-gray-900 font-medium text-lg mt-6">
-                            Diseñar una aplicación basada en lógica difusa para evaluar el riesgo de estrés hídrico en cultivos de jitomate, analizando la humedad del suelo para tomar mejores decisiones en el sistema de riego automático.
-                        </p>
-                    </div>
-                    <div class="glass-inner p-6 md:p-8 hover:shadow-lg transition-shadow">
-                        <h3 class="text-xl font-bold text-gray-800 mb-4 border-b border-gray-300 pb-2">Objetivos Específicos</h3>
-                        <ul class="list-disc list-inside space-y-3 text-gray-800 text-base mt-4">
-                            <li>Identificar qué datos de entrada (como la humedad o la temperatura) son los más importantes para saber si la planta necesita agua.</li>
-                            <li>Crear gráficas (funciones de membresía) que representen con palabras como "seco" o "muy húmedo" los valores exactos que mandan los sensores.</li>
-                            <li>Armar reglas sencillas que relacionen el clima del invernadero con el nivel de riesgo de la planta, para decidir cuánta agua dejar pasar.</li>
-                            <li>Comprobar visualmente cómo funcionan las propiedades matemáticas de la lógica difusa (como la unión o la intersección) usando nuestros datos reales.</li>
-                            <li>Hacer un pequeño código de prueba en Python o JavaScript para ver cómo se comportan las gráficas en la computadora.</li>
-                            <li>Entender por qué usar lógica difusa es mucho mejor que solo usar sistemas básicos de encendido y apagado.</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ================= SECCIÓN II: ACTIVIDAD 8 ================= -->
-        <section id="actividad8" class="glass-card p-8 md:p-10 border-l-8 border-purple-500 reveal">
-            <header class="mb-8 border-b border-gray-300/50 pb-4">
-                <span class="bg-purple-500 text-white px-3 py-1 rounded-md text-sm font-bold uppercase tracking-wider mb-2 inline-block">Actividad 8</span>
-                <h2 class="text-3xl font-bold text-gray-900">Sección II: Problemática y Justificación</h2>
-            </header>
-            
-            <div class="grid md:grid-cols-2 gap-10">
-                <div class="glass-inner p-6 md:p-8 bg-white/30 hover:shadow-lg transition-shadow">
-                    <h3 class="text-2xl font-bold text-purple-700 mb-4">Problemática</h3>
-                    <p class="text-gray-800 text-base leading-relaxed text-justify mb-4">
-                        En los invernaderos de jitomate, el principal problema es darnos cuenta a tiempo de que la planta está empezando a sufrir por el clima o la falta de agua. Normalmente, la humedad de la tierra cambia poco a poco, pero los sistemas de riego antiguos (que usan temporizadores o interruptores de 0 y 1) no entienden esos cambios graduales y riegan de golpe o no riegan nada (Htwe et al., 2026).<br><br>
-                        Además, mirar un solo dato no basta para saber cómo está la planta. Por ejemplo, si hace mucho calor pero la tierra está bien mojada, el riesgo para la planta no es el mismo que si hiciera calor y la tierra estuviera seca. Tenemos que juntar varios datos para tomar una buena decisión.<br><br>
-                        Por todo esto, necesitamos crear un sistema que pueda mezclar la información de los sensores usando lógica difusa (Kim et al., 2025). De esta forma, la computadora podrá entender esos estados "intermedios" y darnos una alerta mucho más exacta sobre si el cultivo está en peligro.
-                    </p>
-                </div>
-
-                <div class="glass-inner p-6 md:p-8 bg-white/30 hover:shadow-lg transition-shadow">
-                    <h3 class="text-2xl font-bold text-purple-700 mb-4">Justificación</h3>
-                    <p class="text-gray-800 text-base leading-relaxed text-justify">
-                        Esta aplicación se justifica porque la lógica difusa nos da una forma mucho mejor de analizar problemas de la vida real, donde casi nada es 100% de una sola forma. En el caso de las plantas de jitomate, los cambios pequeños en el clima son señales de que la planta está pasando de estar sana a estresarse (Maldonado-Peralta et al., 2021).<br><br>
-                        Al mezclar los datos de humedad y temperatura en nuestro sistema, podemos tener una idea más clara de la salud del invernadero. Ya no solo vemos un número suelto, sino que vemos cómo interactúan todos los datos para decidir si prendemos el riego o no.<br><br>
-                        Por último, como estudiante, hacer este proyecto me permite aplicar lo que estamos aprendiendo en la maestría (como hacer funciones de membresía y probar reglas difusas) en un problema del mundo real. Así, no solo cumplo con la actividad, sino que avanzo de manera sólida en mi idea de tesis.
-                    </p>
-                </div>
-            </div>
-        </section>
-
-        <!-- ================= SECCIÓN III: MARCO TEÓRICO Y CONCEPTOS ================= -->
-        <section id="fundamentos" class="glass-card p-8 md:p-10 border-l-8 border-teal-500 reveal">
-            <header class="mb-8 border-b border-gray-300/50 pb-4">
-                <span class="bg-teal-500 text-white px-3 py-1 rounded-md text-sm font-bold uppercase tracking-wider mb-2 inline-block">Introducción a la Actividad 5</span>
-                <h2 class="text-3xl font-bold text-gray-900">Sección III: Conceptos Básicos y Estructura del Sistema</h2>
-                <p class="text-gray-600 mt-2 text-lg">Para entender las gráficas que veremos más adelante, primero repasaremos qué significan estos términos en nuestro proyecto de riego.</p>
-            </header>
-
-            <div class="space-y-8">
-                <div class="glass-inner p-6 md:p-8 bg-white/40">
-                    <h3 class="text-2xl font-bold text-teal-700 mb-4">1. Palabras clave de la Lógica Difusa</h3>
-                    <div class="grid md:grid-cols-2 gap-8 text-gray-800 leading-relaxed text-justify">
-                        <div>
-                            <p class="mb-4"><strong>Lógica Difusa:</strong> Es una forma de lógica que nos permite enseñarle a la computadora a manejar información imprecisa, parecida a como pensamos los humanos. En lugar de decir solo "Falso o Verdadero" (0 o 1), usa grados intermedios en un intervalo de 0 a 1, por ejemplo "0.7 de cierto" (Zadeh, 1965).</p>
-                            <p><strong>Universo de Discurso:</strong> Son todos los valores posibles que puede tener algo que estamos midiendo. Si hablamos de la humedad de la tierra, nuestro universo va del 0% (totalmente seco) al 100% (puro lodo).</p>
-                        </div>
-                        <div>
-                            <p class="mb-4"><strong>Variable Lingüística:</strong> Es cuando le ponemos nombres o palabras a nuestros sensores. En lugar de decir "sensor = 30", decimos "Humedad Baja" o "Humedad Óptima" (Klir & Yuan, 1995).</p>
-                            <p><strong>Función de Membresía:</strong> Son las gráficas (generalmente en forma de triángulo o campana) que nos dicen qué tanto pertenece un número a una palabra. Por ejemplo, nos ayuda a ver si el 40% de humedad se considera "un poco seco" o "muy seco" (Ross, 2010).</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="glass-inner p-6 md:p-8 bg-white/40">
-                    <h3 class="text-2xl font-bold text-teal-700 mb-4">2. Variables de Entrada y Salida</h3>
-                    <p class="text-gray-800 mb-4">Para que nuestro sistema decida cuánta agua darle al jitomate, va a leer los datos del ambiente y tomará una decisión:</p>
-                    <div class="grid md:grid-cols-2 gap-6">
-                        <div class="border border-teal-300 rounded bg-white/30 p-4 shadow-sm hover:shadow-md transition">
-                            <h4 class="font-bold text-gray-900 border-b border-teal-200 pb-2 mb-3">Entradas (Lo que leen los sensores)</h4>
-                            <ul class="list-disc pl-5 space-y-2 text-gray-800 text-sm">
-                                <li><strong>Humedad del Suelo:</strong> Nos dice qué tanta agua tiene la tierra.</li>
-                                <li><strong>Temperatura:</strong> Nos dice qué tanto calor hace, lo cual seca más rápido a la planta.</li>
-                            </ul>
-                        </div>
-                        <div class="border border-teal-300 rounded bg-white/30 p-4 shadow-sm hover:shadow-md transition">
-                            <h4 class="font-bold text-gray-900 border-b border-teal-200 pb-2 mb-3">Salidas (Lo que hace el sistema)</h4>
-                            <ul class="list-disc pl-5 space-y-2 text-gray-800 text-sm">
-                                <li><strong>Válvula de Riego:</strong> El sistema decide cuánto tiempo debe dejar abierta la llave del agua (un ratito, tiempo normal, o mucho tiempo).</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ================= SECCIÓN IV: ACTIVIDAD 5 ================= -->
-        <section id="actividad5" class="glass-card p-8 md:p-10 border-l-8 border-blue-600 reveal">
-            <header class="mb-10 border-b border-gray-300/50 pb-4">
-                <span class="bg-blue-600 text-white px-3 py-1 rounded-md text-sm font-bold uppercase tracking-wider mb-2 inline-block">Actividad 5</span>
-                <h2 class="text-3xl font-bold text-gray-900">Sección IV: Visualización de las Propiedades Difusas</h2>
-                <p class="text-gray-600 mt-2 text-lg">En esta parte veremos cómo funcionan las matemáticas detrás de la lógica difusa, usando los datos reales de la humedad de nuestro invernadero.</p>
-            </header>
-
-            <!-- SUBSECCIÓN: CONTEXTO Y MATRIZ -->
-            <div class="mb-12">
-                <h3 class="text-2xl font-bold text-blue-800 mb-4">A. Nuestros 3 Conjuntos Principales</h3>
-                <p class="text-gray-800 mb-6 text-lg">
-                    Para las siguientes gráficas, hemos dividido la humedad del suelo de nuestros jitomates en tres grupos:
-                </p>
-                
-                <div class="grid md:grid-cols-3 gap-6 mb-8 text-center">
-                    <div class="glass-inner bg-red-50/50 p-6 border-t-4 border-red-500 hover:-translate-y-1 transition-transform">
-                        <span class="block text-2xl font-black text-red-700 mb-2">Conjunto B</span> 
-                        <strong class="text-lg">Sequía</strong><br>
-                        <span class="text-sm text-gray-600">Cuando la tierra está muy seca (rojo).</span>
-                    </div>
-                    <div class="glass-inner bg-green-50/50 p-6 border-t-4 border-green-500 shadow-lg transform scale-105">
-                        <span class="block text-2xl font-black text-green-700 mb-2">Conjunto A</span> 
-                        <strong class="text-lg">Humedad Óptima</strong><br>
-                        <span class="text-sm text-gray-600">Cuando la planta tiene el agua ideal (verde).</span>
-                    </div>
-                    <div class="glass-inner bg-blue-50/50 p-6 border-t-4 border-blue-500 hover:-translate-y-1 transition-transform">
-                        <span class="block text-2xl font-black text-blue-700 mb-2">Conjunto C</span> 
-                        <strong class="text-lg">Exceso de Agua</strong><br>
-                        <span class="text-sm text-gray-600">Cuando la tierra parece lodo y ahoga la raíz (azul).</span>
-                    </div>
-                </div>
-
-                <div class="grid lg:grid-cols-2 gap-8 mb-12 items-center">
-                    <div class="glass-inner p-4 flex flex-col justify-center bg-white/60">
-                        <h4 class="text-center font-bold text-gray-800 mb-2">Gráfica Base de la Humedad</h4>
-                        <canvas id="chartIntro" height="200"></canvas>
-                    </div>
-                    
-                    <!-- SIMULADOR INTERACTIVO DE FUZZIFICACIÓN -->
-                    <div class="glass-inner p-6 flex flex-col justify-center bg-gray-50/50 border border-blue-200">
-                        <h4 class="font-bold text-blue-800 mb-4 text-center text-xl flex items-center justify-center">
-                            <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
-                            Simulador Interactivo de Fuzzificación
-                        </h4>
-                        <p class="text-sm text-gray-700 mb-4 text-center">Desliza la barra para simular un valor leído por el sensor de humedad. El sistema calculará en tiempo real el grado de membresía $(\mu)$ exacto para cada conjunto.</p>
-                        
-                        <div class="mb-6">
-                            <input type="range" id="humedad-slider" min="0" max="100" value="35" step="1">
-                            <div class="text-center mt-2 font-bold text-lg">Sensor leyendo: <span id="valor-sensor" class="text-blue-600 text-2xl">35%</span></div>
-                        </div>
-
-                        <div class="bg-white/80 p-4 rounded-lg shadow-inner grid grid-cols-3 text-center gap-2">
-                            <div>
-                                <div class="text-xs font-bold text-gray-500 uppercase">Sequía (B)</div>
-                                <div id="res-b" class="text-2xl font-black text-red-600">0.0</div>
-                            </div>
-                            <div class="border-l border-r border-gray-200">
-                                <div class="text-xs font-bold text-gray-500 uppercase">Óptima (A)</div>
-                                <div id="res-a" class="text-2xl font-black text-green-600">0.0</div>
-                            </div>
-                            <div>
-                                <div class="text-xs font-bold text-gray-500 uppercase">Exceso (C)</div>
-                                <div id="res-c" class="text-2xl font-black text-blue-600">0.0</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- SUBSECCIÓN: LAS 11 PROPIEDADES -->
-            <h3 class="text-3xl font-extrabold text-center text-gray-900 mb-10 border-t border-gray-300/50 pt-10">
-                B. Análisis de las 11 Propiedades
+        <div class="space-y-8">
+          <div class="glass-inner p-6 md:p-8">
+            <h3 class="text-2xl font-bold text-gray-800 mb-4 text-yellow-600">
+              Introducción
             </h3>
+            <p class="text-gray-800 text-justify leading-relaxed text-lg">
+              El riego en los invernaderos de jitomate es una tarea muy
+              importante, ya que si la planta recibe mucha o muy poca agua, su
+              crecimiento se afecta y se echa a perder la cosecha
+              (Maldonado-Peralta et al., 2021). Sin embargo, los sistemas de
+              riego actuales funcionan casi siempre de manera tajante: o la
+              llave del agua está completamente abierta o está completamente
+              cerrada.<br /><br />
+              Ante este problema, la lógica difusa es una gran herramienta
+              porque nos permite analizar las condiciones del suelo de una forma
+              más parecida a como lo haría un humano. En lugar de decir "el
+              suelo está seco al 100%", podemos usar palabras como "el suelo
+              está un poco seco" o "está muy húmedo". Esto nos permite tomar
+              decisiones intermedias, abriendo la llave del agua solo lo
+              necesario (Mamdani & Assilian, 1975).<br /><br />
+              En este proyecto propongo crear un sistema basado en lógica difusa
+              que evalúe si el jitomate está sufriendo estrés por falta de agua
+              (o exceso de ella) analizando los datos que nos mandan los
+              sensores. Así, podremos tener un control de riego mucho más
+              inteligente y flexible.
+            </p>
+          </div>
 
-            <div class="space-y-12">
-                <!-- Propiedad 1 -->
-                <article class="glass-inner p-8 relative bg-white/40 shadow-sm border border-white reveal">
-                    <h4 class="text-2xl font-bold text-gray-900 mb-6">1. Ley de Contradicción: Descripción</h4>
-                    <div class="grid lg:grid-cols-12 gap-8 items-center">
-                        <div class="lg:col-span-7 space-y-4">
-                            <p class="text-gray-800 text-justify">
-                                En la lógica normal (la de matemáticas básicas), algo no puede "ser" y "no ser" al mismo tiempo. Si lo cruzamos, debería dar cero. Pero en la lógica difusa, como trabajamos con puntos medios, un valor sí puede pertenecer un poco a una palabra y un poco a su contrario al mismo tiempo, así que el resultado no es cero absoluto (D’Negri & De Vito, 2006; Zadeh, 1965).
-                            </p>
-                            <div class="math-box bg-white/60 p-4 rounded-lg text-center border border-gray-200">
-                                $$A \cap \overline{A} \neq \emptyset \quad \implies \quad \min(\mu_A(x), 1 - \mu_A(x)) \neq 0$$
-                            </div>
-                            <div class="bg-blue-50/80 border-l-4 border-blue-600 p-4 rounded text-sm text-blue-900">
-                                <strong class="text-blue-800 block mb-1">Estado en el proyecto: NO APLICA (No es válida)</strong>
-                                En mi invernadero esto me ayuda mucho. Si el sensor marca 30% de humedad, el sistema no se traba ni se confunde; simplemente entiende que la planta está un poco en "Humedad Óptima" y un poco en "No Óptima". Al ver esto, la computadora decide abrir un poco la llave del agua en lugar de abrirla toda de golpe.
-                            </div>
-                            <div class="bg-white/50 p-4 rounded border border-gray-300 text-sm text-gray-800">
-                                <strong class="text-gray-900">Interpretación de la Gráfica:</strong> En la gráfica podemos ver la curva verde que es nuestra "Humedad Óptima" y una línea gris punteada que es todo lo contrario (la negación). Al buscar lo que tienen en común (intersección), se pinta de rojo. Como vemos, el área roja forma dos triangulitos que suben del nivel cero, comprobando de manera muy visual que la contradicción aquí no da cero.
-                            </div>
-                        </div>
-                        <div class="lg:col-span-5 bg-white/50 p-2 rounded-xl"><canvas id="chartP1"></canvas></div>
-                    </div>
-                </article>
-
-                <!-- Propiedad 2 -->
-                <article class="glass-inner p-8 relative bg-white/40 shadow-sm border border-white reveal">
-                    <h4 class="text-2xl font-bold text-gray-900 mb-6">2. Ley del Tercero Excluido: Descripción</h4>
-                    <div class="grid lg:grid-cols-12 gap-8 items-center">
-                        <div class="lg:col-span-7 space-y-4">
-                            <p class="text-gray-800 text-justify">
-                                La lógica clásica dice que si juntamos todas las cosas buenas con todas las cosas malas, deberíamos llenar el 100% de las opciones posibles. Sin embargo, en la lógica difusa esto no pasa. Al juntar un conjunto con su contrario usando el operador de unión, se forman "huecos" donde no se llega al tope del 100% (Galindo Gómez, s. f.; Klir & Yuan, 1995).
-                            </p>
-                            <div class="math-box bg-white/60 p-4 rounded-lg text-center border border-gray-200">
-                                $$A \cup \overline{A} \neq X \quad \implies \quad \max(\mu_A(x), 1 - \mu_A(x)) \neq 1$$
-                            </div>
-                            <div class="bg-blue-50/80 border-l-4 border-blue-600 p-4 rounded text-sm text-blue-900">
-                                <strong class="text-blue-800 block mb-1">Estado en el proyecto: NO APLICA (No es válida)</strong>
-                                Para mi sistema de jitomates esto es útil porque la planta no pasa de estar sana a estar marchita en un instante. Esos "huecos" matemáticos son interpretados por el sistema como los momentos donde la planta apenas se empieza a estresar, dejándome mandar una alerta a mi celular a tiempo.
-                            </div>
-                            <div class="bg-white/50 p-4 rounded border border-gray-300 text-sm text-gray-800">
-                                <strong class="text-gray-900">Interpretación de la Gráfica:</strong> Si esta ley funcionara, la zona coloreada de naranja formaría un bloque rectangular perfecto que llegaría hasta arriba (al número 1.0). Pero en la imagen vemos que la línea naranja se hunde y forma dos valles. Estos hundimientos comprueban que unir opuestos en lógica difusa no rellena todo el espacio.
-                            </div>
-                        </div>
-                        <div class="lg:col-span-5 bg-white/50 p-2 rounded-xl"><canvas id="chartP2"></canvas></div>
-                    </div>
-                </article>
-
-                <!-- Propiedad 3 -->
-                <article class="glass-inner p-8 relative bg-white/40 shadow-sm border border-white reveal">
-                    <h4 class="text-2xl font-bold text-gray-900 mb-6">3. Idempotencia (Unión): Descripción</h4>
-                    <div class="grid lg:grid-cols-12 gap-8 items-center">
-                        <div class="lg:col-span-7 space-y-4">
-                            <p class="text-gray-800 text-justify">
-                                Esta propiedad nos dice que si unimos un conjunto exactamente consigo mismo, el resultado será el mismo conjunto sin sufrir ningún cambio. No se suma ni se hace el doble de grande (Ross, 2010).
-                            </p>
-                            <div class="math-box bg-white/60 p-4 rounded-lg text-center border border-gray-200">
-                                $$A \cup A = A \quad \implies \quad \max(\mu_A(x), \mu_A(x)) = \mu_A(x)$$
-                            </div>
-                            <div class="bg-green-50/80 border-l-4 border-green-600 p-4 rounded text-sm text-green-900">
-                                <strong class="text-green-800 block mb-1">Estado en el proyecto: SÍ APLICA (Válida)</strong>
-                                Si por seguridad coloco dos sensores de humedad juntos en la maceta y ambos le gritan al sistema "¡Humedad Óptima!", mi código los va a unir, pero gracias a esta ley, el valor no se duplicará. El sistema solo entenderá que todo está bien y no abrirá el agua por error.
-                            </div>
-                            <div class="bg-white/50 p-4 rounded border border-gray-300 text-sm text-gray-800">
-                                <strong class="text-gray-900">Interpretación de la Gráfica:</strong> Aquí tenemos nuestro conjunto verde (A) de fondo. Al aplicarle la fórmula de unión consigo mismo, se dibuja la línea gruesa azul con rayitas. Podemos ver cómo esta línea azul dibuja exactamente la misma montaña que el conjunto verde de atrás, sin hacerse más gorda ni más alta.
-                            </div>
-                        </div>
-                        <div class="lg:col-span-5 bg-white/50 p-2 rounded-xl"><canvas id="chartP3"></canvas></div>
-                    </div>
-                </article>
-
-                <!-- Propiedad 4 -->
-                <article class="glass-inner p-8 relative bg-white/40 shadow-sm border border-white reveal">
-                    <h4 class="text-2xl font-bold text-gray-900 mb-6">4. Idempotencia (Intersección): Descripción</h4>
-                    <div class="grid lg:grid-cols-12 gap-8 items-center">
-                        <div class="lg:col-span-7 space-y-4">
-                            <p class="text-gray-800 text-justify">
-                                De la misma forma que en la unión, si buscamos qué tiene en común un conjunto consigo mismo (usando la operación Mínimo), el resultado será simplemente el mismo conjunto original, manteniéndose estable (Ross, 2010).
-                            </p>
-                            <div class="math-box bg-white/60 p-4 rounded-lg text-center border border-gray-200">
-                                $$A \cap A = A \quad \implies \quad \min(\mu_A(x), \mu_A(x)) = \mu_A(x)$$
-                            </div>
-                            <div class="bg-green-50/80 border-l-4 border-green-600 p-4 rounded text-sm text-green-900">
-                                <strong class="text-green-800 block mb-1">Estado en el proyecto: SÍ APLICA (Válida)</strong>
-                                Esto hace que mi código sea muy robusto. Si la computadora lee el mismo dato de "Humedad Óptima" varias veces muy rápido, el valor del cálculo no se va a hacer más pequeño por tantas lecturas, sino que siempre dará un resultado confiable.
-                            </div>
-                            <div class="bg-white/50 p-4 rounded border border-gray-300 text-sm text-gray-800">
-                                <strong class="text-gray-900">Interpretación de la Gráfica:</strong> Al igual que en la propiedad anterior, vemos que la línea punteada oscura (que es el resultado de intersectar el conjunto consigo mismo) sigue la forma de la pirámide verde. No hay diferencias visuales, lo que significa que el conjunto se quedó intacto.
-                            </div>
-                        </div>
-                        <div class="lg:col-span-5 bg-white/50 p-2 rounded-xl"><canvas id="chartP4"></canvas></div>
-                    </div>
-                </article>
-
-                <!-- Propiedad 5 -->
-                <article class="glass-inner p-8 relative bg-white/40 shadow-sm border border-white reveal">
-                    <h4 class="text-2xl font-bold text-gray-900 mb-6">5. Doble Negación (Involución): Descripción</h4>
-                    <div class="grid lg:grid-cols-12 gap-8 items-center">
-                        <div class="lg:col-span-7 space-y-4">
-                            <p class="text-gray-800 text-justify">
-                                Esta propiedad es muy intuitiva. Si negamos algo (le sacamos el contrario), y a ese resultado lo volvemos a negar, regresamos a lo que teníamos al inicio. Es como decir "No es cierto que no hace frío", que es lo mismo que decir "Hace frío" (Klir & Yuan, 1995).
-                            </p>
-                            <div class="math-box bg-white/60 p-4 rounded-lg text-center border border-gray-200">
-                                $$\overline{\overline{A}} = A \quad \implies \quad 1 - (1 - \mu_A(x)) = \mu_A(x)$$
-                            </div>
-                            <div class="bg-green-50/80 border-l-4 border-green-600 p-4 rounded text-sm text-green-900">
-                                <strong class="text-green-800 block mb-1">Estado en el proyecto: SÍ APLICA (Válida)</strong>
-                                Es muy útil en los cables del invernadero. A veces usamos llaves de agua que funcionan al revés por seguridad (si se va la luz, se cierran). Si mi código necesita negar su señal dos veces para mandar la orden correcta, esta propiedad nos garantiza que la computadora recordará bien si la tierra estaba óptima o no.
-                            </div>
-                            <div class="bg-white/50 p-4 rounded border border-gray-300 text-sm text-gray-800">
-                                <strong class="text-gray-900">Interpretación de la Gráfica:</strong> Primero dibujamos una línea gris muy fina que es la negación de la Humedad Óptima (Not A). Al negarla por segunda vez, sale la línea gruesa esmeralda con rayitas. Podemos notar cómo esta línea esmeralda se acomoda exactamente sobre la montaña verde, demostrando que regresamos al punto de inicio.
-                            </div>
-                        </div>
-                        <div class="lg:col-span-5 bg-white/50 p-2 rounded-xl"><canvas id="chartP5"></canvas></div>
-                    </div>
-                </article>
-
-                <!-- Propiedad 6 -->
-                <article class="glass-inner p-8 relative bg-white/40 shadow-sm border border-white reveal">
-                    <h4 class="text-2xl font-bold text-gray-900 mb-6">6. Conmutatividad (Unión): Descripción</h4>
-                    <div class="grid lg:grid-cols-12 gap-8 items-center">
-                        <div class="lg:col-span-7 space-y-4">
-                            <p class="text-gray-800 text-justify">
-                                Esta ley nos dice que el orden en que acomodamos las palabras para unirlas no altera el resultado. Es decir, sumar la etiqueta A con la B es exactamente lo mismo que sumar la B con la A (Ross, 2010).
-                            </p>
-                            <div class="math-box bg-white/60 p-4 rounded-lg text-center border border-gray-200">
-                                $$A \cup B = B \cup A \quad \implies \quad \max(\mu_A, \mu_B) = \max(\mu_B, \mu_A)$$
-                            </div>
-                            <div class="bg-green-50/80 border-l-4 border-green-600 p-4 rounded text-sm text-green-900">
-                                <strong class="text-green-800 block mb-1">Estado en el proyecto: SÍ APLICA (Válida)</strong>
-                                Para el sistema del jitomate, esto me ayuda a que el programa reaccione más rápido. Si la regla es: "SI hace calor O la tierra está seca, avísame", no importa si el wifi me manda primero el dato de calor y luego el del suelo seco, la computadora va a disparar la alerta de todos modos.
-                            </div>
-                            <div class="bg-white/50 p-4 rounded border border-gray-300 text-sm text-gray-800">
-                                <strong class="text-gray-900">Interpretación de la Gráfica:</strong> Aquí estamos uniendo la Humedad Óptima (verde) y la Sequía (rojo). La línea oscura y sólida es "A unido con B". La línea roja con rayitas es el orden inverso, "B unido con A". Como ambas líneas se pintan exactamente una encima de la otra formando dos montañitas pegadas, confirmamos que el orden no importó nada.
-                            </div>
-                        </div>
-                        <div class="lg:col-span-5 bg-white/50 p-2 rounded-xl"><canvas id="chartP6"></canvas></div>
-                    </div>
-                </article>
-
-                <!-- Propiedad 7 -->
-                <article class="glass-inner p-8 relative bg-white/40 shadow-sm border border-white reveal">
-                    <h4 class="text-2xl font-bold text-gray-900 mb-6">7. Conmutatividad (Intersección): Descripción</h4>
-                    <div class="grid lg:grid-cols-12 gap-8 items-center">
-                        <div class="lg:col-span-7 space-y-4">
-                            <p class="text-gray-800 text-justify">
-                                De forma muy parecida a la unión, si buscamos lo que tienen en común dos conjuntos (usando el operador AND), el resultado no cambia por poner primero a uno o al otro (Ross, 2010).
-                            </p>
-                            <div class="math-box bg-white/60 p-4 rounded-lg text-center border border-gray-200">
-                                $$A \cap B = B \cap A \quad \implies \quad \min(\mu_A, \mu_B) = \min(\mu_B, \mu_A)$$
-                            </div>
-                            <div class="bg-green-50/80 border-l-4 border-green-600 p-4 rounded text-sm text-green-900">
-                                <strong class="text-green-800 block mb-1">Estado en el proyecto: SÍ APLICA (Válida)</strong>
-                                Esto hace que el "cerebro" de mi sistema trabaje menos. Si la computadora revisa un problema grave diciendo "Hay mucha luz Y la tierra está seca", sacará la misma cuenta que si la revisa al revés. No tengo que escribir el mismo código dos veces en diferente orden.
-                            </div>
-                            <div class="bg-white/50 p-4 rounded border border-gray-300 text-sm text-gray-800">
-                                <strong class="text-gray-900">Interpretación de la Gráfica:</strong> Evaluamos el cruce de la Humedad Óptima y la Sequía. La línea morada gruesa es poner primero la A y luego la B. La línea dorada punteada es poner primero la B. Las dos líneas forman exactamente el mismo piquito bajo en la zona del 20% al 40% de humedad, demostrando que son operaciones iguales.
-                            </div>
-                        </div>
-                        <div class="lg:col-span-5 bg-white/50 p-2 rounded-xl"><canvas id="chartP7"></canvas></div>
-                    </div>
-                </article>
-
-                <!-- Propiedad 8 -->
-                <article class="glass-inner p-8 relative bg-white/40 shadow-sm border border-white reveal">
-                    <h4 class="text-2xl font-bold text-gray-900 mb-6">8. Asociatividad (Unión): Descripción</h4>
-                    <div class="grid lg:grid-cols-12 gap-8 items-center">
-                        <div class="lg:col-span-7 space-y-4">
-                            <p class="text-gray-800 text-justify">
-                                Esta ley nos permite tomar varios conjuntos que se están sumando o uniendo, y ponerles paréntesis para agruparlos como queramos. Al final del día, agrupes como los agrupes, el resultado de todo el bloque será el mismo (Klir & Yuan, 1995).
-                            </p>
-                            <div class="math-box bg-white/60 p-4 rounded-lg text-center border border-gray-200">
-                                $$(A \cup B) \cup C = A \cup (B \cup C)$$
-                            </div>
-                            <div class="bg-green-50/80 border-l-4 border-green-600 p-4 rounded text-sm text-green-900">
-                                <strong class="text-green-800 block mb-1">Estado en el proyecto: SÍ APLICA (Válida)</strong>
-                                Cuando mi invernadero sea grande, tendré muchas alertas, como "Sequía OR Exceso de agua OR Falla en la llave". El código me deja agrupar los problemas del suelo por un lado y los problemas mecánicos por otro. Esto ayuda a que mi programa se vea más limpio y ordenado sin afectar el cálculo del riego.
-                            </div>
-                            <div class="bg-white/50 p-4 rounded border border-gray-300 text-sm text-gray-800">
-                                <strong class="text-gray-900">Interpretación de la Gráfica:</strong> Para ver esto usamos los tres conjuntos (A, B y C). La línea turquesa sólida los agrupa de izquierda a derecha. La línea naranja punteada los agrupa de derecha a izquierda. Notamos que ambas líneas viajan por los picos más altos de la gráfica formando un lomo continuo de colores, empalmándose a la perfección.
-                            </div>
-                        </div>
-                        <div class="lg:col-span-5 bg-white/50 p-2 rounded-xl"><canvas id="chartP8"></canvas></div>
-                    </div>
-                </article>
-
-                <!-- Propiedad 9 -->
-                <article class="glass-inner p-8 relative bg-white/40 shadow-sm border border-white reveal">
-                    <h4 class="text-2xl font-bold text-gray-900 mb-6">9. Asociatividad (Intersección): Descripción</h4>
-                    <div class="grid lg:grid-cols-12 gap-8 items-center">
-                        <div class="lg:col-span-7 space-y-4">
-                            <p class="text-gray-800 text-justify">
-                                Parecido a la propiedad anterior, cuando usamos el operador de intersección (AND) con tres o más conjuntos, podemos ponerles paréntesis donde nos convenga y el cruce de todos ellos no cambiará (Klir & Yuan, 1995).
-                            </p>
-                            <div class="math-box bg-white/60 p-4 rounded-lg text-center border border-gray-200">
-                                $$(A \cap B) \cap C = A \cap (B \cap C)$$
-                            </div>
-                            <div class="bg-green-50/80 border-l-4 border-green-600 p-4 rounded text-sm text-green-900">
-                                <strong class="text-green-800 block mb-1">Estado en el proyecto: SÍ APLICA (Válida)</strong>
-                                Para saber si las condiciones están 100% perfectas para el jitomate, la computadora revisa: "Clima perfecto AND Tierra perfecta AND Luz perfecta". Gracias a esto, puedo programar que analice primero todo el clima en un grupo, y si todo sale bien, lo cruce con el dato del suelo, haciendo que la computadora trabaje más veloz.
-                            </div>
-                            <div class="bg-white/50 p-4 rounded border border-gray-300 text-sm text-gray-800">
-                                <strong class="text-gray-900">Interpretación de la Gráfica:</strong> Aquí cruzamos Óptima, Sequía y Exceso de agua. Como la Sequía y el Exceso de agua están en extremos diferentes del invernadero (nunca vas a tener tierra seca y encharcada en el mismo centímetro), no tienen nada en común. Así que tanto la línea sólida como la punteada se quedan tiradas en la línea del cero, comprobando que el resultado es el mismo en ambos casos.
-                            </div>
-                        </div>
-                        <div class="lg:col-span-5 bg-white/50 p-2 rounded-xl"><canvas id="chartP9"></canvas></div>
-                    </div>
-                </article>
-
-                <!-- Propiedad 10 -->
-                <article class="glass-inner p-8 relative bg-white/40 shadow-sm border border-white reveal">
-                    <h4 class="text-2xl font-bold text-gray-900 mb-6">10. Leyes Distributivas y de De Morgan (Unión): Descripción</h4>
-                    <div class="grid lg:grid-cols-12 gap-8 items-center">
-                        <div class="lg:col-span-7 space-y-4">
-                            <p class="text-gray-800 text-justify">
-                                La ley distributiva nos permite "repartir" la operación de unión sobre un grupo que está entre paréntesis, como en el álgebra normal. Por otro lado, las famosas Leyes de De Morgan nos enseñan un truco: si quieres negar todo un grupo que se está uniendo, es lo mismo que negar cada pedacito por separado y luego cruzarlos (D’Negri & De Vito, 2006; Galindo Gómez, s. f.).
-                            </p>
-                            <div class="math-box bg-white/60 p-4 rounded-lg text-center border border-gray-200">
-                                $$A \cup (B \cap C) = (A \cup B) \cap (A \cup C)$$
-                                $$\overline{A \cup B} = \overline{A} \cap \overline{B} \quad \text{(De Morgan)}$$
-                            </div>
-                            <div class="bg-green-50/80 border-l-4 border-green-600 p-4 rounded text-sm text-green-900">
-                                <strong class="text-green-800 block mb-1">Estado en el proyecto: SÍ APLICA (Válida)</strong>
-                                Estas reglas son geniales para limpiar el código de las alarmas. Si quiero saber cuándo cancelar el riego de emergencia (es decir, negar que haga mucho calor O que haya sequía), el sistema aplica De Morgan para simplemente revisar "¿Hace fresco? Y ¿La tierra está bien?". Esto me ahorra código y cálculos.
-                            </div>
-                            <div class="bg-white/50 p-4 rounded border border-gray-300 text-sm text-gray-800">
-                                <strong class="text-gray-900">Interpretación de la Gráfica:</strong> En la gráfica vemos qué pasa si repartimos una ecuación grande. La línea azul oscura muestra la operación tal como estaba originalmente, y la línea morada con rayitas nos muestra la operación ya repartida (distribuida). Al seguir el camino por toda la imagen, notamos que ambas líneas son gemelas idénticas, comprobando la matemática de fondo.
-                            </div>
-                        </div>
-                        <div class="lg:col-span-5 bg-white/50 p-2 rounded-xl"><canvas id="chartP10"></canvas></div>
-                    </div>
-                </article>
-
-                <!-- Propiedad 11 -->
-                <article class="glass-inner p-8 relative bg-white/40 shadow-sm border border-white reveal">
-                    <h4 class="text-2xl font-bold text-gray-900 mb-6">11. Absorción del complemento y De Morgan (Intersección): Descripción</h4>
-                    <div class="grid lg:grid-cols-12 gap-8 items-center">
-                        <div class="lg:col-span-7 space-y-4">
-                            <p class="text-gray-800 text-justify">
-                                La propiedad de absorción del complemento establece que, en teoría de conjuntos difusos, un conjunto puede combinarse con expresiones en las que aparece su complemento sin perder coherencia algebraica. Esta propiedad permite simplificar ciertas expresiones donde intervienen un conjunto, su complemento y otro conjunto adicional. Su importancia radica en que ayuda a reorganizar expresiones difusas y a comprender mejor cómo interactúan condiciones opuestas o complementarias dentro de un sistema. En lógica difusa, esto es sumamente útil cuando se trabaja con etiquetas como “humedad alta” y “humedad no alta”, o “riesgo de asfixia” y “riesgo no asfixia” (D’Negri & De Vito, 2006; Galindo Gómez, s. f.). Además de esto, la intersección también se puede repartir, y la otra ley de De Morgan funciona al revés que la anterior.
-                            </p>
-                            <div class="math-box bg-white/60 p-4 rounded-lg text-center border border-gray-200">
-                                $$A \cap (B \cup C) = (A \cap B) \cup (A \cap C)$$
-                                $$\overline{A \cap B} = \overline{A} \cup \overline{B} \quad \text{(De Morgan)}$$
-                            </div>
-                            <div class="bg-green-50/80 border-l-4 border-green-600 p-4 rounded text-sm text-green-900">
-                                <strong class="text-green-800 block mb-1">Estado en el proyecto: SÍ APLICA (Válida)</strong>
-                                Conforme mi invernadero y mi tesis crezcan, voy a agregar más sensores como fertilizantes o ventiladores, haciendo que mis reglas sean enormes. Aplicando la absorción del complemento y la distribución, podré partir mis lógicas en pedazos más chiquitos sabiendo que el cálculo matemático para regar a los jitomates seguirá siendo exacto.
-                            </div>
-                            <div class="bg-white/50 p-4 rounded border border-gray-300 text-sm text-gray-800">
-                                <strong class="text-gray-900">Interpretación de la Gráfica:</strong> En este último ejemplo la línea sólida en azul claro es la ecuación original, y la línea roja punteada es cómo se ve la ecuación cuando repartimos la intersección adentro de los paréntesis. Las dos líneas forman exactamente los mismos picos medianos y bajos a lo largo del clima, demostrando visualmente que la ecuación funciona igual de ambas formas.
-                            </div>
-                        </div>
-                        <div class="lg:col-span-5 bg-white/50 p-2 rounded-xl"><canvas id="chartP11"></canvas></div>
-                    </div>
-                </article>
-
+          <div class="grid md:grid-cols-2 gap-8">
+            <div
+              class="glass-inner p-6 md:p-8 bg-white/40 hover:shadow-lg transition-shadow"
+            >
+              <h3
+                class="text-xl font-bold text-gray-800 mb-4 text-center border-b border-gray-300 pb-2"
+              >
+                Objetivo General
+              </h3>
+              <p class="text-center text-gray-900 font-medium text-lg mt-6">
+                Diseñar una aplicación basada en lógica difusa para evaluar el
+                riesgo de estrés hídrico en cultivos de jitomate, analizando la
+                humedad del suelo para tomar mejores decisiones en el sistema de
+                riego automático.
+              </p>
             </div>
-        </section>
-
-        <!-- ================= REFERENCIAS ================= -->
-        <section class="mt-16 border-t border-gray-400/40 pt-10 pb-8 reveal">
-            <h2 class="text-2xl font-bold text-gray-900 mb-6 drop-shadow-sm">Referencias Bibliográficas (Formato APA 7)</h2>
-            <div class="glass-card p-8 text-sm md:text-base text-gray-800 space-y-5 bg-white/50">
-                <p class="pl-8 -indent-8">D’Negri, C., & De Vito, A. (2006). Introducción a la lógica difusa. <em>Revista de la Facultad de Ciencias Exactas, Físicas y Naturales</em>, 1(1), 25-34.</p>
-                <p class="pl-8 -indent-8">Galindo Gómez, J. (s. f.). <em>Conjuntos y Sistemas Difusos</em>. Universidad de Málaga. Recuperado de la base de conocimientos teóricos en inteligencia artificial.</p>
-                <p class="pl-8 -indent-8">Htwe, M. M., Filchev, L. H., et al. (2026). An IoT-driven predictive analytics framework for dynamic irrigation optimization in tomato cultivation. <em>Mathematical Biosciences and Engineering</em>, 23(1), 242-265. https://doi.org/10.3934/mbe.2026010</p>
-                <p class="pl-8 -indent-8">Kim, J., et al. (2025). Machine Learning for Reference Crop Evapotranspiration Modeling: A State-of-the-Art Review and Future Directions. <em>Agronomy</em>, 15(9), 2038. https://doi.org/10.3390/agronomy15092038</p>
-                <p class="pl-8 -indent-8">Klir, G. J., & Yuan, B. (1995). <em>Fuzzy sets and fuzzy logic: theory and applications</em>. Prentice Hall.</p>
-                <p class="pl-8 -indent-8">Maldonado-Peralta, R., Maldonado-Peralta, M. d. I. Á., Rojas-Garcia, A. R., & Salinas-Vargas, D. (2021). Efecto del estrés hídrico en poblaciones nativas de tomate mexicano. <em>Ecosistemas y Recursos Agropecuarios</em>, 8(II), e2889. https://doi.org/10.19136/era.a8nII.2889</p>
-                <p class="pl-8 -indent-8">Mamdani, E. H., & Assilian, S. (1975). An experiment in linguistic synthesis with a fuzzy logic controller. <em>International Journal of Man-Machine Studies</em>, 7(1), 1-13. https://doi.org/10.1016/S0020-7373(75)80002-2</p>
-                <p class="pl-8 -indent-8">Ross, T. J. (2010). <em>Fuzzy logic with engineering applications</em> (3rd ed.). John Wiley & Sons.</p>
-                <p class="pl-8 -indent-8">Zadeh, L. A. (1965). Fuzzy sets. <em>Information and control</em>, 8(3), 338-353. https://doi.org/10.1016/S0019-9958(65)90241-X</p>
+            <div
+              class="glass-inner p-6 md:p-8 hover:shadow-lg transition-shadow"
+            >
+              <h3
+                class="text-xl font-bold text-gray-800 mb-4 border-b border-gray-300 pb-2"
+              >
+                Objetivos Específicos
+              </h3>
+              <ul
+                class="list-disc list-inside space-y-3 text-gray-800 text-base mt-4"
+              >
+                <li>
+                  Identificar qué datos de entrada (como la humedad o la
+                  temperatura) son los más importantes para saber si la planta
+                  necesita agua.
+                </li>
+                <li>
+                  Crear gráficas (funciones de membresía) que representen con
+                  palabras como "seco" o "muy húmedo" los valores exactos que
+                  mandan los sensores.
+                </li>
+                <li>
+                  Armar reglas sencillas que relacionen el clima del invernadero
+                  con el nivel de riesgo de la planta, para decidir cuánta agua
+                  dejar pasar.
+                </li>
+                <li>
+                  Comprobar visualmente cómo funcionan las propiedades
+                  matemáticas de la lógica difusa (como la unión o la
+                  intersección) usando nuestros datos reales.
+                </li>
+                <li>
+                  Hacer un pequeño código de prueba en Python o JavaScript para
+                  ver cómo se comportan las gráficas en la computadora.
+                </li>
+                <li>
+                  Entender por qué usar lógica difusa es mucho mejor que solo
+                  usar sistemas básicos de encendido y apagado.
+                </li>
+              </ul>
             </div>
-        </section>
+          </div>
+        </div>
+      </section>
 
+      <!-- ================= SECCIÓN II: ACTIVIDAD 8 ================= -->
+      <section
+        id="actividad8"
+        class="glass-card p-8 md:p-10 border-l-8 border-purple-500 reveal"
+      >
+        <header class="mb-8 border-b border-gray-300/50 pb-4">
+          <span
+            class="bg-purple-500 text-white px-3 py-1 rounded-md text-sm font-bold uppercase tracking-wider mb-2 inline-block"
+            >Actividad 8</span
+          >
+          <h2 class="text-3xl font-bold text-gray-900">
+            Sección II: Problemática y Justificación
+          </h2>
+        </header>
+
+        <div class="grid md:grid-cols-2 gap-10">
+          <div
+            class="glass-inner p-6 md:p-8 bg-white/30 hover:shadow-lg transition-shadow"
+          >
+            <h3 class="text-2xl font-bold text-purple-700 mb-4">
+              Problemática
+            </h3>
+            <p
+              class="text-gray-800 text-base leading-relaxed text-justify mb-4"
+            >
+              En los invernaderos de jitomate, el principal problema es darnos
+              cuenta a tiempo de que la planta está empezando a sufrir por el
+              clima o la falta de agua. Normalmente, la humedad de la tierra
+              cambia poco a poco, pero los sistemas de riego antiguos (que usan
+              temporizadores o interruptores de 0 y 1) no entienden esos cambios
+              graduales y riegan de golpe o no riegan nada (Htwe et al.,
+              2026).<br /><br />
+              Además, mirar un solo dato no basta para saber cómo está la
+              planta. Por ejemplo, si hace mucho calor pero la tierra está bien
+              mojada, el riesgo para la planta no es el mismo que si hiciera
+              calor y la tierra estuviera seca. Tenemos que juntar varios datos
+              para tomar una buena decisión.<br /><br />
+              Por todo esto, necesitamos crear un sistema que pueda mezclar la
+              información de los sensores usando lógica difusa (Kim et al.,
+              2025). De esta forma, la computadora podrá entender esos estados
+              "intermedios" y darnos una alerta mucho más exacta sobre si el
+              cultivo está en peligro.
+            </p>
+          </div>
+
+          <div
+            class="glass-inner p-6 md:p-8 bg-white/30 hover:shadow-lg transition-shadow"
+          >
+            <h3 class="text-2xl font-bold text-purple-700 mb-4">
+              Justificación
+            </h3>
+            <p class="text-gray-800 text-base leading-relaxed text-justify">
+              Esta aplicación se justifica porque la lógica difusa nos da una
+              forma mucho mejor de analizar problemas de la vida real, donde
+              casi nada es 100% de una sola forma. En el caso de las plantas de
+              jitomate, los cambios pequeños en el clima son señales de que la
+              planta está pasando de estar sana a estresarse (Maldonado-Peralta
+              et al., 2021).<br /><br />
+              Al mezclar los datos de humedad y temperatura en nuestro sistema,
+              podemos tener una idea más clara de la salud del invernadero. Ya
+              no solo vemos un número suelto, sino que vemos cómo interactúan
+              todos los datos para decidir si prendemos el riego o no.<br /><br />
+              Por último, como estudiante, hacer este proyecto me permite
+              aplicar lo que estamos aprendiendo en la maestría (como hacer
+              funciones de membresía y probar reglas difusas) en un problema del
+              mundo real. Así, no solo cumplo con la actividad, sino que avanzo
+              de manera sólida en mi idea de tesis.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SECCIÓN III: MARCO TEÓRICO Y CONCEPTOS ================= -->
+      <section
+        id="fundamentos"
+        class="glass-card p-8 md:p-10 border-l-8 border-teal-500 reveal"
+      >
+        <header class="mb-8 border-b border-gray-300/50 pb-4">
+          <span
+            class="bg-teal-500 text-white px-3 py-1 rounded-md text-sm font-bold uppercase tracking-wider mb-2 inline-block"
+            >Introducción a la Actividad 5</span
+          >
+          <h2 class="text-3xl font-bold text-gray-900">
+            Sección III: Conceptos Básicos y Estructura del Sistema
+          </h2>
+          <p class="text-gray-600 mt-2 text-lg">
+            Para entender las gráficas que veremos más adelante, primero
+            repasaremos qué significan estos términos en nuestro proyecto de
+            riego.
+          </p>
+        </header>
+
+        <div class="space-y-8">
+          <div class="glass-inner p-6 md:p-8 bg-white/40">
+            <h3 class="text-2xl font-bold text-teal-700 mb-4">
+              1. Palabras clave de la Lógica Difusa
+            </h3>
+            <div
+              class="grid md:grid-cols-2 gap-8 text-gray-800 leading-relaxed text-justify"
+            >
+              <div>
+                <p class="mb-4">
+                  <strong>Lógica Difusa:</strong> Es una forma de lógica que nos
+                  permite enseñarle a la computadora a manejar información
+                  imprecisa, parecida a como pensamos los humanos. En lugar de
+                  decir solo "Falso o Verdadero" (0 o 1), usa grados intermedios
+                  en un intervalo de 0 a 1, por ejemplo "0.7 de cierto" (Zadeh,
+                  1965).
+                </p>
+                <p>
+                  <strong>Universo de Discurso:</strong> Son todos los valores
+                  posibles que puede tener algo que estamos midiendo. Si
+                  hablamos de la humedad de la tierra, nuestro universo va del
+                  0% (totalmente seco) al 100% (puro lodo).
+                </p>
+              </div>
+              <div>
+                <p class="mb-4">
+                  <strong>Variable Lingüística:</strong> Es cuando le ponemos
+                  nombres o palabras a nuestros sensores. En lugar de decir
+                  "sensor = 30", decimos "Humedad Baja" o "Humedad Óptima" (Klir
+                  & Yuan, 1995).
+                </p>
+                <p>
+                  <strong>Función de Membresía:</strong> Son las gráficas
+                  (generalmente en forma de triángulo o campana) que nos dicen
+                  qué tanto pertenece un número a una palabra. Por ejemplo, nos
+                  ayuda a ver si el 40% de humedad se considera "un poco seco" o
+                  "muy seco" (Ross, 2010).
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass-inner p-6 md:p-8 bg-white/40">
+            <h3 class="text-2xl font-bold text-teal-700 mb-4">
+              2. Variables de Entrada y Salida
+            </h3>
+            <p class="text-gray-800 mb-4">
+              Para que nuestro sistema decida cuánta agua darle al jitomate, va
+              a leer los datos del ambiente y tomará una decisión:
+            </p>
+            <div class="grid md:grid-cols-2 gap-6">
+              <div
+                class="border border-teal-300 rounded bg-white/30 p-4 shadow-sm hover:shadow-md transition"
+              >
+                <h4
+                  class="font-bold text-gray-900 border-b border-teal-200 pb-2 mb-3"
+                >
+                  Entradas (Lo que leen los sensores)
+                </h4>
+                <ul class="list-disc pl-5 space-y-2 text-gray-800 text-sm">
+                  <li>
+                    <strong>Humedad del Suelo:</strong> Nos dice qué tanta agua
+                    tiene la tierra.
+                  </li>
+                  <li>
+                    <strong>Temperatura:</strong> Nos dice qué tanto calor hace,
+                    lo cual seca más rápido a la planta.
+                  </li>
+                </ul>
+              </div>
+              <div
+                class="border border-teal-300 rounded bg-white/30 p-4 shadow-sm hover:shadow-md transition"
+              >
+                <h4
+                  class="font-bold text-gray-900 border-b border-teal-200 pb-2 mb-3"
+                >
+                  Salidas (Lo que hace el sistema)
+                </h4>
+                <ul class="list-disc pl-5 space-y-2 text-gray-800 text-sm">
+                  <li>
+                    <strong>Válvula de Riego:</strong> El sistema decide cuánto
+                    tiempo debe dejar abierta la llave del agua (un ratito,
+                    tiempo normal, o mucho tiempo).
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SECCIÓN IV: ACTIVIDAD 5 ================= -->
+      <section
+        id="actividad5"
+        class="glass-card p-8 md:p-10 border-l-8 border-blue-600 reveal"
+      >
+        <header class="mb-10 border-b border-gray-300/50 pb-4">
+          <span
+            class="bg-blue-600 text-white px-3 py-1 rounded-md text-sm font-bold uppercase tracking-wider mb-2 inline-block"
+            >Actividad 5</span
+          >
+          <h2 class="text-3xl font-bold text-gray-900">
+            Sección IV: Visualización de las Propiedades Difusas
+          </h2>
+          <p class="text-gray-600 mt-2 text-lg">
+            En esta parte veremos cómo funcionan las matemáticas detrás de la
+            lógica difusa, usando los datos reales de la humedad de nuestro
+            invernadero.
+          </p>
+        </header>
+
+        <!-- SUBSECCIÓN: CONTEXTO Y MATRIZ -->
+        <div class="mb-12">
+          <h3 class="text-2xl font-bold text-blue-800 mb-4">
+            A. Nuestros 3 Conjuntos Principales
+          </h3>
+          <p class="text-gray-800 mb-6 text-lg">
+            Para las siguientes gráficas, hemos dividido la humedad del suelo de
+            nuestros jitomates en tres grupos:
+          </p>
+
+          <div class="grid md:grid-cols-3 gap-6 mb-8 text-center">
+            <div
+              class="glass-inner bg-red-50/50 p-6 border-t-4 border-red-500 hover:-translate-y-1 transition-transform"
+            >
+              <span class="block text-2xl font-black text-red-700 mb-2"
+                >Conjunto B</span
+              >
+              <strong class="text-lg">Sequía</strong><br />
+              <span class="text-sm text-gray-600"
+                >Cuando la tierra está muy seca (rojo).</span
+              >
+            </div>
+            <div
+              class="glass-inner bg-green-50/50 p-6 border-t-4 border-green-500 shadow-lg transform scale-105"
+            >
+              <span class="block text-2xl font-black text-green-700 mb-2"
+                >Conjunto A</span
+              >
+              <strong class="text-lg">Humedad Óptima</strong><br />
+              <span class="text-sm text-gray-600"
+                >Cuando la planta tiene el agua ideal (verde).</span
+              >
+            </div>
+            <div
+              class="glass-inner bg-blue-50/50 p-6 border-t-4 border-blue-500 hover:-translate-y-1 transition-transform"
+            >
+              <span class="block text-2xl font-black text-blue-700 mb-2"
+                >Conjunto C</span
+              >
+              <strong class="text-lg">Exceso de Agua</strong><br />
+              <span class="text-sm text-gray-600"
+                >Cuando la tierra parece lodo y ahoga la raíz (azul).</span
+              >
+            </div>
+          </div>
+
+          <div class="grid lg:grid-cols-2 gap-8 mb-12 items-center">
+            <div
+              class="glass-inner p-4 flex flex-col justify-center bg-white/60"
+            >
+              <h4 class="text-center font-bold text-gray-800 mb-2">
+                Gráfica Base de la Humedad
+              </h4>
+              <canvas id="chartIntro" height="200"></canvas>
+            </div>
+
+            <!-- SIMULADOR INTERACTIVO DE FUZZIFICACIÓN -->
+            <div
+              class="glass-inner p-6 flex flex-col justify-center bg-gray-50/50 border border-blue-200"
+            >
+              <h4
+                class="font-bold text-blue-800 mb-4 text-center text-xl flex items-center justify-center"
+              >
+                <svg
+                  class="w-6 h-6 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"
+                  ></path>
+                </svg>
+                Simulador Interactivo de Fuzzificación
+              </h4>
+              <p class="text-sm text-gray-700 mb-4 text-center">
+                Desliza la barra para simular un valor leído por el sensor de
+                humedad. El sistema calculará en tiempo real el grado de
+                membresía $(\mu)$ exacto para cada conjunto.
+              </p>
+
+              <div class="mb-6">
+                <input
+                  type="range"
+                  id="humedad-slider"
+                  min="0"
+                  max="100"
+                  value="35"
+                  step="1"
+                />
+                <div class="text-center mt-2 font-bold text-lg">
+                  Sensor leyendo:
+                  <span id="valor-sensor" class="text-blue-600 text-2xl"
+                    >35%</span
+                  >
+                </div>
+              </div>
+
+              <div
+                class="bg-white/80 p-4 rounded-lg shadow-inner grid grid-cols-3 text-center gap-2"
+              >
+                <div>
+                  <div class="text-xs font-bold text-gray-500 uppercase">
+                    Sequía (B)
+                  </div>
+                  <div id="res-b" class="text-2xl font-black text-red-600">
+                    0.0
+                  </div>
+                </div>
+                <div class="border-l border-r border-gray-200">
+                  <div class="text-xs font-bold text-gray-500 uppercase">
+                    Óptima (A)
+                  </div>
+                  <div id="res-a" class="text-2xl font-black text-green-600">
+                    0.0
+                  </div>
+                </div>
+                <div>
+                  <div class="text-xs font-bold text-gray-500 uppercase">
+                    Exceso (C)
+                  </div>
+                  <div id="res-c" class="text-2xl font-black text-blue-600">
+                    0.0
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SUBSECCIÓN: LAS 11 PROPIEDADES -->
+        <h3
+          class="text-3xl font-extrabold text-center text-gray-900 mb-10 border-t border-gray-300/50 pt-10"
+        >
+          B. Análisis de las 11 Propiedades
+        </h3>
+
+        <div class="space-y-12">
+          <!-- Propiedad 1 -->
+          <article
+            class="glass-inner p-8 relative bg-white/40 shadow-sm border border-white reveal"
+          >
+            <h4 class="text-2xl font-bold text-gray-900 mb-6">
+              1. Ley de Contradicción: Descripción
+            </h4>
+            <div class="grid lg:grid-cols-12 gap-8 items-center">
+              <div class="lg:col-span-7 space-y-4">
+                <p class="text-gray-800 text-justify">
+                  En la lógica normal (la de matemáticas básicas), algo no puede
+                  "ser" y "no ser" al mismo tiempo. Si lo cruzamos, debería dar
+                  cero. Pero en la lógica difusa, como trabajamos con puntos
+                  medios, un valor sí puede pertenecer un poco a una palabra y
+                  un poco a su contrario al mismo tiempo, así que el resultado
+                  no es cero absoluto (D’Negri & De Vito, 2006; Zadeh, 1965).
+                </p>
+                <div
+                  class="math-box bg-white/60 p-4 rounded-lg text-center border border-gray-200"
+                >
+                  $$A \cap \overline{A} \neq \emptyset \quad \implies \quad
+                  \min(\mu_A(x), 1 - \mu_A(x)) \neq 0$$
+                </div>
+                <div
+                  class="bg-blue-50/80 border-l-4 border-blue-600 p-4 rounded text-sm text-blue-900"
+                >
+                  <strong class="text-blue-800 block mb-1"
+                    >Estado en el proyecto: NO APLICA (No es válida)</strong
+                  >
+                  En mi invernadero esto me ayuda mucho. Si el sensor marca 30%
+                  de humedad, el sistema no se traba ni se confunde; simplemente
+                  entiende que la planta está un poco en "Humedad Óptima" y un
+                  poco en "No Óptima". Al ver esto, la computadora decide abrir
+                  un poco la llave del agua en lugar de abrirla toda de golpe.
+                </div>
+                <div
+                  class="bg-white/50 p-4 rounded border border-gray-300 text-sm text-gray-800"
+                >
+                  <strong class="text-gray-900"
+                    >Interpretación de la Gráfica:</strong
+                  >
+                  En la gráfica podemos ver la curva verde que es nuestra
+                  "Humedad Óptima" y una línea gris punteada que es todo lo
+                  contrario (la negación). Al buscar lo que tienen en común
+                  (intersección), se pinta de rojo. Como vemos, el área roja
+                  forma dos triangulitos que suben del nivel cero, comprobando
+                  de manera muy visual que la contradicción aquí no da cero.
+                </div>
+              </div>
+              <div class="lg:col-span-5 bg-white/50 p-2 rounded-xl">
+                <canvas id="chartP1"></canvas>
+              </div>
+            </div>
+          </article>
+
+          <!-- Propiedad 2 -->
+          <article
+            class="glass-inner p-8 relative bg-white/40 shadow-sm border border-white reveal"
+          >
+            <h4 class="text-2xl font-bold text-gray-900 mb-6">
+              2. Ley del Tercero Excluido: Descripción
+            </h4>
+            <div class="grid lg:grid-cols-12 gap-8 items-center">
+              <div class="lg:col-span-7 space-y-4">
+                <p class="text-gray-800 text-justify">
+                  La lógica clásica dice que si juntamos todas las cosas buenas
+                  con todas las cosas malas, deberíamos llenar el 100% de las
+                  opciones posibles. Sin embargo, en la lógica difusa esto no
+                  pasa. Al juntar un conjunto con su contrario usando el
+                  operador de unión, se forman "huecos" donde no se llega al
+                  tope del 100% (Galindo Gómez, s. f.; Klir & Yuan, 1995).
+                </p>
+                <div
+                  class="math-box bg-white/60 p-4 rounded-lg text-center border border-gray-200"
+                >
+                  $$A \cup \overline{A} \neq X \quad \implies \quad
+                  \max(\mu_A(x), 1 - \mu_A(x)) \neq 1$$
+                </div>
+                <div
+                  class="bg-blue-50/80 border-l-4 border-blue-600 p-4 rounded text-sm text-blue-900"
+                >
+                  <strong class="text-blue-800 block mb-1"
+                    >Estado en el proyecto: NO APLICA (No es válida)</strong
+                  >
+                  Para mi sistema de jitomates esto es útil porque la planta no
+                  pasa de estar sana a estar marchita en un instante. Esos
+                  "huecos" matemáticos son interpretados por el sistema como los
+                  momentos donde la planta apenas se empieza a estresar,
+                  dejándome mandar una alerta a mi celular a tiempo.
+                </div>
+                <div
+                  class="bg-white/50 p-4 rounded border border-gray-300 text-sm text-gray-800"
+                >
+                  <strong class="text-gray-900"
+                    >Interpretación de la Gráfica:</strong
+                  >
+                  Si esta ley funcionara, la zona coloreada de naranja formaría
+                  un bloque rectangular perfecto que llegaría hasta arriba (al
+                  número 1.0). Pero en la imagen vemos que la línea naranja se
+                  hunde y forma dos valles. Estos hundimientos comprueban que
+                  unir opuestos en lógica difusa no rellena todo el espacio.
+                </div>
+              </div>
+              <div class="lg:col-span-5 bg-white/50 p-2 rounded-xl">
+                <canvas id="chartP2"></canvas>
+              </div>
+            </div>
+          </article>
+
+          <!-- Propiedad 3 -->
+          <article
+            class="glass-inner p-8 relative bg-white/40 shadow-sm border border-white reveal"
+          >
+            <h4 class="text-2xl font-bold text-gray-900 mb-6">
+              3. Idempotencia (Unión): Descripción
+            </h4>
+            <div class="grid lg:grid-cols-12 gap-8 items-center">
+              <div class="lg:col-span-7 space-y-4">
+                <p class="text-gray-800 text-justify">
+                  Esta propiedad nos dice que si unimos un conjunto exactamente
+                  consigo mismo, el resultado será el mismo conjunto sin sufrir
+                  ningún cambio. No se suma ni se hace el doble de grande (Ross,
+                  2010).
+                </p>
+                <div
+                  class="math-box bg-white/60 p-4 rounded-lg text-center border border-gray-200"
+                >
+                  $$A \cup A = A \quad \implies \quad \max(\mu_A(x), \mu_A(x)) =
+                  \mu_A(x)$$
+                </div>
+                <div
+                  class="bg-green-50/80 border-l-4 border-green-600 p-4 rounded text-sm text-green-900"
+                >
+                  <strong class="text-green-800 block mb-1"
+                    >Estado en el proyecto: SÍ APLICA (Válida)</strong
+                  >
+                  Si por seguridad coloco dos sensores de humedad juntos en la
+                  maceta y ambos le gritan al sistema "¡Humedad Óptima!", mi
+                  código los va a unir, pero gracias a esta ley, el valor no se
+                  duplicará. El sistema solo entenderá que todo está bien y no
+                  abrirá el agua por error.
+                </div>
+                <div
+                  class="bg-white/50 p-4 rounded border border-gray-300 text-sm text-gray-800"
+                >
+                  <strong class="text-gray-900"
+                    >Interpretación de la Gráfica:</strong
+                  >
+                  Aquí tenemos nuestro conjunto verde (A) de fondo. Al aplicarle
+                  la fórmula de unión consigo mismo, se dibuja la línea gruesa
+                  azul con rayitas. Podemos ver cómo esta línea azul dibuja
+                  exactamente la misma montaña que el conjunto verde de atrás,
+                  sin hacerse más gorda ni más alta.
+                </div>
+              </div>
+              <div class="lg:col-span-5 bg-white/50 p-2 rounded-xl">
+                <canvas id="chartP3"></canvas>
+              </div>
+            </div>
+          </article>
+
+          <!-- Propiedad 4 -->
+          <article
+            class="glass-inner p-8 relative bg-white/40 shadow-sm border border-white reveal"
+          >
+            <h4 class="text-2xl font-bold text-gray-900 mb-6">
+              4. Idempotencia (Intersección): Descripción
+            </h4>
+            <div class="grid lg:grid-cols-12 gap-8 items-center">
+              <div class="lg:col-span-7 space-y-4">
+                <p class="text-gray-800 text-justify">
+                  De la misma forma que en la unión, si buscamos qué tiene en
+                  común un conjunto consigo mismo (usando la operación Mínimo),
+                  el resultado será simplemente el mismo conjunto original,
+                  manteniéndose estable (Ross, 2010).
+                </p>
+                <div
+                  class="math-box bg-white/60 p-4 rounded-lg text-center border border-gray-200"
+                >
+                  $$A \cap A = A \quad \implies \quad \min(\mu_A(x), \mu_A(x)) =
+                  \mu_A(x)$$
+                </div>
+                <div
+                  class="bg-green-50/80 border-l-4 border-green-600 p-4 rounded text-sm text-green-900"
+                >
+                  <strong class="text-green-800 block mb-1"
+                    >Estado en el proyecto: SÍ APLICA (Válida)</strong
+                  >
+                  Esto hace que mi código sea muy robusto. Si la computadora lee
+                  el mismo dato de "Humedad Óptima" varias veces muy rápido, el
+                  valor del cálculo no se va a hacer más pequeño por tantas
+                  lecturas, sino que siempre dará un resultado confiable.
+                </div>
+                <div
+                  class="bg-white/50 p-4 rounded border border-gray-300 text-sm text-gray-800"
+                >
+                  <strong class="text-gray-900"
+                    >Interpretación de la Gráfica:</strong
+                  >
+                  Al igual que en la propiedad anterior, vemos que la línea
+                  punteada oscura (que es el resultado de intersectar el
+                  conjunto consigo mismo) sigue la forma de la pirámide verde.
+                  No hay diferencias visuales, lo que significa que el conjunto
+                  se quedó intacto.
+                </div>
+              </div>
+              <div class="lg:col-span-5 bg-white/50 p-2 rounded-xl">
+                <canvas id="chartP4"></canvas>
+              </div>
+            </div>
+          </article>
+
+          <!-- Propiedad 5 -->
+          <article
+            class="glass-inner p-8 relative bg-white/40 shadow-sm border border-white reveal"
+          >
+            <h4 class="text-2xl font-bold text-gray-900 mb-6">
+              5. Doble Negación (Involución): Descripción
+            </h4>
+            <div class="grid lg:grid-cols-12 gap-8 items-center">
+              <div class="lg:col-span-7 space-y-4">
+                <p class="text-gray-800 text-justify">
+                  Esta propiedad es muy intuitiva. Si negamos algo (le sacamos
+                  el contrario), y a ese resultado lo volvemos a negar,
+                  regresamos a lo que teníamos al inicio. Es como decir "No es
+                  cierto que no hace frío", que es lo mismo que decir "Hace
+                  frío" (Klir & Yuan, 1995).
+                </p>
+                <div
+                  class="math-box bg-white/60 p-4 rounded-lg text-center border border-gray-200"
+                >
+                  $$\overline{\overline{A}} = A \quad \implies \quad 1 - (1 -
+                  \mu_A(x)) = \mu_A(x)$$
+                </div>
+                <div
+                  class="bg-green-50/80 border-l-4 border-green-600 p-4 rounded text-sm text-green-900"
+                >
+                  <strong class="text-green-800 block mb-1"
+                    >Estado en el proyecto: SÍ APLICA (Válida)</strong
+                  >
+                  Es muy útil en los cables del invernadero. A veces usamos
+                  llaves de agua que funcionan al revés por seguridad (si se va
+                  la luz, se cierran). Si mi código necesita negar su señal dos
+                  veces para mandar la orden correcta, esta propiedad nos
+                  garantiza que la computadora recordará bien si la tierra
+                  estaba óptima o no.
+                </div>
+                <div
+                  class="bg-white/50 p-4 rounded border border-gray-300 text-sm text-gray-800"
+                >
+                  <strong class="text-gray-900"
+                    >Interpretación de la Gráfica:</strong
+                  >
+                  Primero dibujamos una línea gris muy fina que es la negación
+                  de la Humedad Óptima (Not A). Al negarla por segunda vez, sale
+                  la línea gruesa esmeralda con rayitas. Podemos notar cómo esta
+                  línea esmeralda se acomoda exactamente sobre la montaña verde,
+                  demostrando que regresamos al punto de inicio.
+                </div>
+              </div>
+              <div class="lg:col-span-5 bg-white/50 p-2 rounded-xl">
+                <canvas id="chartP5"></canvas>
+              </div>
+            </div>
+          </article>
+
+          <!-- Propiedad 6 -->
+          <article
+            class="glass-inner p-8 relative bg-white/40 shadow-sm border border-white reveal"
+          >
+            <h4 class="text-2xl font-bold text-gray-900 mb-6">
+              6. Conmutatividad (Unión): Descripción
+            </h4>
+            <div class="grid lg:grid-cols-12 gap-8 items-center">
+              <div class="lg:col-span-7 space-y-4">
+                <p class="text-gray-800 text-justify">
+                  Esta ley nos dice que el orden en que acomodamos las palabras
+                  para unirlas no altera el resultado. Es decir, sumar la
+                  etiqueta A con la B es exactamente lo mismo que sumar la B con
+                  la A (Ross, 2010).
+                </p>
+                <div
+                  class="math-box bg-white/60 p-4 rounded-lg text-center border border-gray-200"
+                >
+                  $$A \cup B = B \cup A \quad \implies \quad \max(\mu_A, \mu_B)
+                  = \max(\mu_B, \mu_A)$$
+                </div>
+                <div
+                  class="bg-green-50/80 border-l-4 border-green-600 p-4 rounded text-sm text-green-900"
+                >
+                  <strong class="text-green-800 block mb-1"
+                    >Estado en el proyecto: SÍ APLICA (Válida)</strong
+                  >
+                  Para el sistema del jitomate, esto me ayuda a que el programa
+                  reaccione más rápido. Si la regla es: "SI hace calor O la
+                  tierra está seca, avísame", no importa si el wifi me manda
+                  primero el dato de calor y luego el del suelo seco, la
+                  computadora va a disparar la alerta de todos modos.
+                </div>
+                <div
+                  class="bg-white/50 p-4 rounded border border-gray-300 text-sm text-gray-800"
+                >
+                  <strong class="text-gray-900"
+                    >Interpretación de la Gráfica:</strong
+                  >
+                  Aquí estamos uniendo la Humedad Óptima (verde) y la Sequía
+                  (rojo). La línea oscura y sólida es "A unido con B". La línea
+                  roja con rayitas es el orden inverso, "B unido con A". Como
+                  ambas líneas se pintan exactamente una encima de la otra
+                  formando dos montañitas pegadas, confirmamos que el orden no
+                  importó nada.
+                </div>
+              </div>
+              <div class="lg:col-span-5 bg-white/50 p-2 rounded-xl">
+                <canvas id="chartP6"></canvas>
+              </div>
+            </div>
+          </article>
+
+          <!-- Propiedad 7 -->
+          <article
+            class="glass-inner p-8 relative bg-white/40 shadow-sm border border-white reveal"
+          >
+            <h4 class="text-2xl font-bold text-gray-900 mb-6">
+              7. Conmutatividad (Intersección): Descripción
+            </h4>
+            <div class="grid lg:grid-cols-12 gap-8 items-center">
+              <div class="lg:col-span-7 space-y-4">
+                <p class="text-gray-800 text-justify">
+                  De forma muy parecida a la unión, si buscamos lo que tienen en
+                  común dos conjuntos (usando el operador AND), el resultado no
+                  cambia por poner primero a uno o al otro (Ross, 2010).
+                </p>
+                <div
+                  class="math-box bg-white/60 p-4 rounded-lg text-center border border-gray-200"
+                >
+                  $$A \cap B = B \cap A \quad \implies \quad \min(\mu_A, \mu_B)
+                  = \min(\mu_B, \mu_A)$$
+                </div>
+                <div
+                  class="bg-green-50/80 border-l-4 border-green-600 p-4 rounded text-sm text-green-900"
+                >
+                  <strong class="text-green-800 block mb-1"
+                    >Estado en el proyecto: SÍ APLICA (Válida)</strong
+                  >
+                  Esto hace que el "cerebro" de mi sistema trabaje menos. Si la
+                  computadora revisa un problema grave diciendo "Hay mucha luz Y
+                  la tierra está seca", sacará la misma cuenta que si la revisa
+                  al revés. No tengo que escribir el mismo código dos veces en
+                  diferente orden.
+                </div>
+                <div
+                  class="bg-white/50 p-4 rounded border border-gray-300 text-sm text-gray-800"
+                >
+                  <strong class="text-gray-900"
+                    >Interpretación de la Gráfica:</strong
+                  >
+                  Evaluamos el cruce de la Humedad Óptima y la Sequía. La línea
+                  morada gruesa es poner primero la A y luego la B. La línea
+                  dorada punteada es poner primero la B. Las dos líneas forman
+                  exactamente el mismo piquito bajo en la zona del 20% al 40% de
+                  humedad, demostrando que son operaciones iguales.
+                </div>
+              </div>
+              <div class="lg:col-span-5 bg-white/50 p-2 rounded-xl">
+                <canvas id="chartP7"></canvas>
+              </div>
+            </div>
+          </article>
+
+          <!-- Propiedad 8 -->
+          <article
+            class="glass-inner p-8 relative bg-white/40 shadow-sm border border-white reveal"
+          >
+            <h4 class="text-2xl font-bold text-gray-900 mb-6">
+              8. Asociatividad (Unión): Descripción
+            </h4>
+            <div class="grid lg:grid-cols-12 gap-8 items-center">
+              <div class="lg:col-span-7 space-y-4">
+                <p class="text-gray-800 text-justify">
+                  Esta ley nos permite tomar varios conjuntos que se están
+                  sumando o uniendo, y ponerles paréntesis para agruparlos como
+                  queramos. Al final del día, agrupes como los agrupes, el
+                  resultado de todo el bloque será el mismo (Klir & Yuan, 1995).
+                </p>
+                <div
+                  class="math-box bg-white/60 p-4 rounded-lg text-center border border-gray-200"
+                >
+                  $$(A \cup B) \cup C = A \cup (B \cup C)$$
+                </div>
+                <div
+                  class="bg-green-50/80 border-l-4 border-green-600 p-4 rounded text-sm text-green-900"
+                >
+                  <strong class="text-green-800 block mb-1"
+                    >Estado en el proyecto: SÍ APLICA (Válida)</strong
+                  >
+                  Cuando mi invernadero sea grande, tendré muchas alertas, como
+                  "Sequía OR Exceso de agua OR Falla en la llave". El código me
+                  deja agrupar los problemas del suelo por un lado y los
+                  problemas mecánicos por otro. Esto ayuda a que mi programa se
+                  vea más limpio y ordenado sin afectar el cálculo del riego.
+                </div>
+                <div
+                  class="bg-white/50 p-4 rounded border border-gray-300 text-sm text-gray-800"
+                >
+                  <strong class="text-gray-900"
+                    >Interpretación de la Gráfica:</strong
+                  >
+                  Para ver esto usamos los tres conjuntos (A, B y C). La línea
+                  turquesa sólida los agrupa de izquierda a derecha. La línea
+                  naranja punteada los agrupa de derecha a izquierda. Notamos
+                  que ambas líneas viajan por los picos más altos de la gráfica
+                  formando un lomo continuo de colores, empalmándose a la
+                  perfección.
+                </div>
+              </div>
+              <div class="lg:col-span-5 bg-white/50 p-2 rounded-xl">
+                <canvas id="chartP8"></canvas>
+              </div>
+            </div>
+          </article>
+
+          <!-- Propiedad 9 -->
+          <article
+            class="glass-inner p-8 relative bg-white/40 shadow-sm border border-white reveal"
+          >
+            <h4 class="text-2xl font-bold text-gray-900 mb-6">
+              9. Asociatividad (Intersección): Descripción
+            </h4>
+            <div class="grid lg:grid-cols-12 gap-8 items-center">
+              <div class="lg:col-span-7 space-y-4">
+                <p class="text-gray-800 text-justify">
+                  Parecido a la propiedad anterior, cuando usamos el operador de
+                  intersección (AND) con tres o más conjuntos, podemos ponerles
+                  paréntesis donde nos convenga y el cruce de todos ellos no
+                  cambiará (Klir & Yuan, 1995).
+                </p>
+                <div
+                  class="math-box bg-white/60 p-4 rounded-lg text-center border border-gray-200"
+                >
+                  $$(A \cap B) \cap C = A \cap (B \cap C)$$
+                </div>
+                <div
+                  class="bg-green-50/80 border-l-4 border-green-600 p-4 rounded text-sm text-green-900"
+                >
+                  <strong class="text-green-800 block mb-1"
+                    >Estado en el proyecto: SÍ APLICA (Válida)</strong
+                  >
+                  Para saber si las condiciones están 100% perfectas para el
+                  jitomate, la computadora revisa: "Clima perfecto AND Tierra
+                  perfecta AND Luz perfecta". Gracias a esto, puedo programar
+                  que analice primero todo el clima en un grupo, y si todo sale
+                  bien, lo cruce con el dato del suelo, haciendo que la
+                  computadora trabaje más veloz.
+                </div>
+                <div
+                  class="bg-white/50 p-4 rounded border border-gray-300 text-sm text-gray-800"
+                >
+                  <strong class="text-gray-900"
+                    >Interpretación de la Gráfica:</strong
+                  >
+                  Aquí cruzamos Óptima, Sequía y Exceso de agua. Como la Sequía
+                  y el Exceso de agua están en extremos diferentes del
+                  invernadero (nunca vas a tener tierra seca y encharcada en el
+                  mismo centímetro), no tienen nada en común. Así que tanto la
+                  línea sólida como la punteada se quedan tiradas en la línea
+                  del cero, comprobando que el resultado es el mismo en ambos
+                  casos.
+                </div>
+              </div>
+              <div class="lg:col-span-5 bg-white/50 p-2 rounded-xl">
+                <canvas id="chartP9"></canvas>
+              </div>
+            </div>
+          </article>
+
+          <!-- Propiedad 10 -->
+          <article
+            class="glass-inner p-8 relative bg-white/40 shadow-sm border border-white reveal"
+          >
+            <h4 class="text-2xl font-bold text-gray-900 mb-6">
+              10. Leyes Distributivas y de De Morgan (Unión): Descripción
+            </h4>
+            <div class="grid lg:grid-cols-12 gap-8 items-center">
+              <div class="lg:col-span-7 space-y-4">
+                <p class="text-gray-800 text-justify">
+                  La ley distributiva nos permite "repartir" la operación de
+                  unión sobre un grupo que está entre paréntesis, como en el
+                  álgebra normal. Por otro lado, las famosas Leyes de De Morgan
+                  nos enseñan un truco: si quieres negar todo un grupo que se
+                  está uniendo, es lo mismo que negar cada pedacito por separado
+                  y luego cruzarlos (D’Negri & De Vito, 2006; Galindo Gómez, s.
+                  f.).
+                </p>
+                <div
+                  class="math-box bg-white/60 p-4 rounded-lg text-center border border-gray-200"
+                >
+                  $$A \cup (B \cap C) = (A \cup B) \cap (A \cup C)$$
+                  $$\overline{A \cup B} = \overline{A} \cap \overline{B} \quad
+                  \text{(De Morgan)}$$
+                </div>
+                <div
+                  class="bg-green-50/80 border-l-4 border-green-600 p-4 rounded text-sm text-green-900"
+                >
+                  <strong class="text-green-800 block mb-1"
+                    >Estado en el proyecto: SÍ APLICA (Válida)</strong
+                  >
+                  Estas reglas son geniales para limpiar el código de las
+                  alarmas. Si quiero saber cuándo cancelar el riego de
+                  emergencia (es decir, negar que haga mucho calor O que haya
+                  sequía), el sistema aplica De Morgan para simplemente revisar
+                  "¿Hace fresco? Y ¿La tierra está bien?". Esto me ahorra código
+                  y cálculos.
+                </div>
+                <div
+                  class="bg-white/50 p-4 rounded border border-gray-300 text-sm text-gray-800"
+                >
+                  <strong class="text-gray-900"
+                    >Interpretación de la Gráfica:</strong
+                  >
+                  En la gráfica vemos qué pasa si repartimos una ecuación
+                  grande. La línea azul oscura muestra la operación tal como
+                  estaba originalmente, y la línea morada con rayitas nos
+                  muestra la operación ya repartida (distribuida). Al seguir el
+                  camino por toda la imagen, notamos que ambas líneas son
+                  gemelas idénticas, comprobando la matemática de fondo.
+                </div>
+              </div>
+              <div class="lg:col-span-5 bg-white/50 p-2 rounded-xl">
+                <canvas id="chartP10"></canvas>
+              </div>
+            </div>
+          </article>
+
+          <!-- Propiedad 11 -->
+          <article
+            class="glass-inner p-8 relative bg-white/40 shadow-sm border border-white reveal"
+          >
+            <h4 class="text-2xl font-bold text-gray-900 mb-6">
+              11. Absorción del complemento y De Morgan (Intersección):
+              Descripción
+            </h4>
+            <div class="grid lg:grid-cols-12 gap-8 items-center">
+              <div class="lg:col-span-7 space-y-4">
+                <p class="text-gray-800 text-justify">
+                  La propiedad de absorción del complemento establece que, en
+                  teoría de conjuntos difusos, un conjunto puede combinarse con
+                  expresiones en las que aparece su complemento sin perder
+                  coherencia algebraica. Esta propiedad permite simplificar
+                  ciertas expresiones donde intervienen un conjunto, su
+                  complemento y otro conjunto adicional. Su importancia radica
+                  en que ayuda a reorganizar expresiones difusas y a comprender
+                  mejor cómo interactúan condiciones opuestas o complementarias
+                  dentro de un sistema. En lógica difusa, esto es sumamente útil
+                  cuando se trabaja con etiquetas como “humedad alta” y “humedad
+                  no alta”, o “riesgo de asfixia” y “riesgo no asfixia” (D’Negri
+                  & De Vito, 2006; Galindo Gómez, s. f.). Además de esto, la
+                  intersección también se puede repartir, y la otra ley de De
+                  Morgan funciona al revés que la anterior.
+                </p>
+                <div
+                  class="math-box bg-white/60 p-4 rounded-lg text-center border border-gray-200"
+                >
+                  $$A \cap (B \cup C) = (A \cap B) \cup (A \cap C)$$
+                  $$\overline{A \cap B} = \overline{A} \cup \overline{B} \quad
+                  \text{(De Morgan)}$$
+                </div>
+                <div
+                  class="bg-green-50/80 border-l-4 border-green-600 p-4 rounded text-sm text-green-900"
+                >
+                  <strong class="text-green-800 block mb-1"
+                    >Estado en el proyecto: SÍ APLICA (Válida)</strong
+                  >
+                  Conforme mi invernadero y mi tesis crezcan, voy a agregar más
+                  sensores como fertilizantes o ventiladores, haciendo que mis
+                  reglas sean enormes. Aplicando la absorción del complemento y
+                  la distribución, podré partir mis lógicas en pedazos más
+                  chiquitos sabiendo que el cálculo matemático para regar a los
+                  jitomates seguirá siendo exacto.
+                </div>
+                <div
+                  class="bg-white/50 p-4 rounded border border-gray-300 text-sm text-gray-800"
+                >
+                  <strong class="text-gray-900"
+                    >Interpretación de la Gráfica:</strong
+                  >
+                  En este último ejemplo la línea sólida en azul claro es la
+                  ecuación original, y la línea roja punteada es cómo se ve la
+                  ecuación cuando repartimos la intersección adentro de los
+                  paréntesis. Las dos líneas forman exactamente los mismos picos
+                  medianos y bajos a lo largo del clima, demostrando visualmente
+                  que la ecuación funciona igual de ambas formas.
+                </div>
+              </div>
+              <div class="lg:col-span-5 bg-white/50 p-2 rounded-xl">
+                <canvas id="chartP11"></canvas>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- ================= REFERENCIAS ================= -->
+      <section class="mt-16 border-t border-gray-400/40 pt-10 pb-8 reveal">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6 drop-shadow-sm">
+          Referencias Bibliográficas (Formato APA 7)
+        </h2>
+        <div
+          class="glass-card p-8 text-sm md:text-base text-gray-800 space-y-5 bg-white/50"
+        >
+          <p class="pl-8 -indent-8">
+            D’Negri, C., & De Vito, A. (2006). Introducción a la lógica difusa.
+            <em
+              >Revista de la Facultad de Ciencias Exactas, Físicas y
+              Naturales</em
+            >, 1(1), 25-34.
+          </p>
+          <p class="pl-8 -indent-8">
+            Galindo Gómez, J. (s. f.). <em>Conjuntos y Sistemas Difusos</em>.
+            Universidad de Málaga. Recuperado de la base de conocimientos
+            teóricos en inteligencia artificial.
+          </p>
+          <p class="pl-8 -indent-8">
+            Htwe, M. M., Filchev, L. H., et al. (2026). An IoT-driven predictive
+            analytics framework for dynamic irrigation optimization in tomato
+            cultivation. <em>Mathematical Biosciences and Engineering</em>,
+            23(1), 242-265. https://doi.org/10.3934/mbe.2026010
+          </p>
+          <p class="pl-8 -indent-8">
+            Kim, J., et al. (2025). Machine Learning for Reference Crop
+            Evapotranspiration Modeling: A State-of-the-Art Review and Future
+            Directions. <em>Agronomy</em>, 15(9), 2038.
+            https://doi.org/10.3390/agronomy15092038
+          </p>
+          <p class="pl-8 -indent-8">
+            Klir, G. J., & Yuan, B. (1995).
+            <em>Fuzzy sets and fuzzy logic: theory and applications</em>.
+            Prentice Hall.
+          </p>
+          <p class="pl-8 -indent-8">
+            Maldonado-Peralta, R., Maldonado-Peralta, M. d. I. Á., Rojas-Garcia,
+            A. R., & Salinas-Vargas, D. (2021). Efecto del estrés hídrico en
+            poblaciones nativas de tomate mexicano.
+            <em>Ecosistemas y Recursos Agropecuarios</em>, 8(II), e2889.
+            https://doi.org/10.19136/era.a8nII.2889
+          </p>
+          <p class="pl-8 -indent-8">
+            Mamdani, E. H., & Assilian, S. (1975). An experiment in linguistic
+            synthesis with a fuzzy logic controller.
+            <em>International Journal of Man-Machine Studies</em>, 7(1), 1-13.
+            https://doi.org/10.1016/S0020-7373(75)80002-2
+          </p>
+          <p class="pl-8 -indent-8">
+            Ross, T. J. (2010).
+            <em>Fuzzy logic with engineering applications</em> (3rd ed.). John
+            Wiley & Sons.
+          </p>
+          <p class="pl-8 -indent-8">
+            Zadeh, L. A. (1965). Fuzzy sets. <em>Information and control</em>,
+            8(3), 338-353. https://doi.org/10.1016/S0019-9958(65)90241-X
+          </p>
+        </div>
+      </section>
     </main>
 
     <!-- SCRIPT PARA GENERAR LAS GRÁFICAS Y MODO OSCURO -->
     <script>
-        // --- INTERACTIVIDAD: SIMULADOR DE FUZZIFICACIÓN ---
-        const mu_B_arr = [1.0, 1.0, 0.8, 0.5, 0.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]; 
-        const mu_A_arr = [0.0, 0.0, 0.0, 0.2, 0.6, 1.0, 1.0, 0.6, 0.2, 0.0, 0.0]; 
-        const mu_C_arr = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.2, 0.6, 1.0, 1.0]; 
+      // --- INTERACTIVIDAD: SIMULADOR DE FUZZIFICACIÓN ---
+      const mu_B_arr = [1.0, 1.0, 0.8, 0.5, 0.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+      const mu_A_arr = [0.0, 0.0, 0.0, 0.2, 0.6, 1.0, 1.0, 0.6, 0.2, 0.0, 0.0];
+      const mu_C_arr = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.2, 0.6, 1.0, 1.0];
 
-        const slider = document.getElementById('humedad-slider');
-        const valSensor = document.getElementById('valor-sensor');
-        const resA = document.getElementById('res-a');
-        const resB = document.getElementById('res-b');
-        const resC = document.getElementById('res-c');
+      const slider = document.getElementById("humedad-slider");
+      const valSensor = document.getElementById("valor-sensor");
+      const resA = document.getElementById("res-a");
+      const resB = document.getElementById("res-b");
+      const resC = document.getElementById("res-c");
 
-        function interp(x, arr) {
-            let idx = Math.floor(x / 10);
-            if (idx >= 10) return arr[10].toFixed(2);
-            let remainder = (x % 10) / 10;
-            let val = arr[idx] + (arr[idx+1] - arr[idx]) * remainder;
-            return val.toFixed(2);
-        }
+      function interp(x, arr) {
+        let idx = Math.floor(x / 10);
+        if (idx >= 10) return arr[10].toFixed(2);
+        let remainder = (x % 10) / 10;
+        let val = arr[idx] + (arr[idx + 1] - arr[idx]) * remainder;
+        return val.toFixed(2);
+      }
 
-        if(slider) {
-            slider.addEventListener('input', (e) => {
-                let val = parseInt(e.target.value);
-                valSensor.innerText = val + '%';
-                resB.innerText = interp(val, mu_B_arr);
-                resA.innerText = interp(val, mu_A_arr);
-                resC.innerText = interp(val, mu_C_arr);
-            });
-            // Init
-            slider.dispatchEvent(new Event('input'));
-        }
-
-        // --- BARRA DE PROGRESO ---
-        window.addEventListener('scroll', () => {
-            let winScroll = document.body.scrollTop || document.documentElement.scrollTop;
-            let height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-            let scrolled = (winScroll / height) * 100;
-            document.getElementById('scroll-progress').style.width = scrolled + "%";
+      if (slider) {
+        slider.addEventListener("input", (e) => {
+          let val = parseInt(e.target.value);
+          valSensor.innerText = val + "%";
+          resB.innerText = interp(val, mu_B_arr);
+          resA.innerText = interp(val, mu_A_arr);
+          resC.innerText = interp(val, mu_C_arr);
         });
+        // Init
+        slider.dispatchEvent(new Event("input"));
+      }
 
-        // --- ANIMACIONES DE SCROLL (FADE IN UP) ---
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('active');
-                }
-            });
-        }, { threshold: 0.1 });
-        
-        document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+      // --- BARRA DE PROGRESO ---
+      window.addEventListener("scroll", () => {
+        let winScroll =
+          document.body.scrollTop || document.documentElement.scrollTop;
+        let height =
+          document.documentElement.scrollHeight -
+          document.documentElement.clientHeight;
+        let scrolled = (winScroll / height) * 100;
+        document.getElementById("scroll-progress").style.width = scrolled + "%";
+      });
 
-        // --- LÓGICA DEL MODO OSCURO ---
-        const themeToggle = document.getElementById('theme-toggle');
-        const themeIcon = document.getElementById('theme-icon');
-
-        themeToggle.addEventListener('click', () => {
-            document.body.classList.toggle('dark-mode');
-            const isDark = document.body.classList.contains('dark-mode');
-            
-            // Cambiar el ícono (Luna a Sol)
-            if (isDark) {
-                themeIcon.innerHTML = '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>';
-            } else {
-                themeIcon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>';
+      // --- ANIMACIONES DE SCROLL (FADE IN UP) ---
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("active");
             }
+          });
+        },
+        { rootMargin: "0px 0px -50px 0px", threshold: 0 },
+      );
 
-            // Repintar las gráficas de Chart.js
-            const textColor = isDark ? '#e2e8f0' : '#334155';
-            const gridColor = isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.05)';
-            
-            Chart.defaults.color = textColor;
-            for (let id in Chart.instances) {
-                let chart = Chart.instances[id];
-                if (chart.options.scales.x) {
-                    chart.options.scales.x.grid.color = gridColor;
-                    chart.options.scales.x.ticks.color = textColor;
-                }
-                if (chart.options.scales.y) {
-                    chart.options.scales.y.grid.color = gridColor;
-                    chart.options.scales.y.ticks.color = textColor;
-                }
-                if (chart.options.plugins.title) {
-                    chart.options.plugins.title.color = textColor;
-                }
-                chart.update();
-            }
-        });
+      document
+        .querySelectorAll(".reveal")
+        .forEach((el) => observer.observe(el));
 
-        // --- LÓGICA DE LAS GRÁFICAS DIFUSAS ---
-        const labelsHumedad = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
+      // --- LÓGICA DEL MODO OSCURO ---
+      const themeToggle = document.getElementById("theme-toggle");
+      const themeIcon = document.getElementById("theme-icon");
 
-        const baseDatasets = [
-            { label: 'Óptima (A)', data: mu_A_arr, borderColor: 'rgba(21, 128, 61, 0.3)', borderDash: [4, 4], borderWidth: 2, fill: false, pointRadius: 0, tension: 0.3 },
-            { label: 'Sequía (B)', data: mu_B_arr, borderColor: 'rgba(185, 28, 28, 0.3)', borderDash: [4, 4], borderWidth: 2, fill: false, pointRadius: 0, tension: 0.3 },
-            { label: 'Asfixia (C)', data: mu_C_arr, borderColor: 'rgba(29, 78, 216, 0.3)', borderDash: [4, 4], borderWidth: 2, fill: false, pointRadius: 0, tension: 0.3 }
-        ];
+      themeToggle.addEventListener("click", () => {
+        document.body.classList.toggle("dark-mode");
+        const isDark = document.body.classList.contains("dark-mode");
 
-        Chart.defaults.color = '#334155';
-        Chart.defaults.font.family = "'Segoe UI', Roboto, 'Helvetica Neue', sans-serif";
-
-        function createChart(ctxId, title, operationDatasets) {
-            new Chart(document.getElementById(ctxId), {
-                type: 'line',
-                data: { labels: labelsHumedad, datasets: [...baseDatasets, ...operationDatasets] },
-                options: {
-                    responsive: true,
-                    aspectRatio: 1.3,
-                    plugins: { 
-                        legend: { position: 'bottom', labels: { boxWidth: 10, font: {size: 10} } }, 
-                        title: { display: true, text: title, font: {size: 13, weight: 'bold'}, color: Chart.defaults.color } 
-                    },
-                    scales: {
-                        y: { beginAtZero: true, max: 1.1, grid: { color: 'rgba(0,0,0,0.05)' } },
-                        x: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: {size: 10} } }
-                    }
-                }
-            });
+        // Cambiar el ícono (Luna a Sol)
+        if (isDark) {
+          themeIcon.innerHTML =
+            '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>';
+        } else {
+          themeIcon.innerHTML =
+            '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>';
         }
 
-        // Gráfica Contexto
-        new Chart(document.getElementById('chartIntro'), {
-            type: 'line',
-            data: { labels: labelsHumedad, datasets: [
-                { label: 'B (Sequía)', data: mu_B_arr, borderColor: '#b91c1c', backgroundColor: 'rgba(239, 68, 68, 0.2)', fill: true, tension: 0.3 },
-                { label: 'A (Óptima)', data: mu_A_arr, borderColor: '#15803d', backgroundColor: 'rgba(34, 197, 94, 0.2)', fill: true, tension: 0.3 },
-                { label: 'C (Exceso)', data: mu_C_arr, borderColor: '#1d4ed8', backgroundColor: 'rgba(59, 130, 246, 0.2)', fill: true, tension: 0.3 }
-            ]},
-            options: { responsive: true, aspectRatio: 2.5, plugins: { legend: { position: 'bottom' } }, scales: { y: { max: 1.1, grid: { color: 'rgba(0,0,0,0.05)' } }, x: { grid: { color: 'rgba(0,0,0,0.05)' } } } }
+        // Repintar las gráficas de Chart.js
+        const textColor = isDark ? "#e2e8f0" : "#334155";
+        const gridColor = isDark
+          ? "rgba(255,255,255,0.15)"
+          : "rgba(0,0,0,0.05)";
+
+        Chart.defaults.color = textColor;
+        for (let id in Chart.instances) {
+          let chart = Chart.instances[id];
+          if (chart.options.scales.x) {
+            chart.options.scales.x.grid.color = gridColor;
+            chart.options.scales.x.ticks.color = textColor;
+          }
+          if (chart.options.scales.y) {
+            chart.options.scales.y.grid.color = gridColor;
+            chart.options.scales.y.ticks.color = textColor;
+          }
+          if (chart.options.plugins.title) {
+            chart.options.plugins.title.color = textColor;
+          }
+          chart.update();
+        }
+      });
+
+      // --- LÓGICA DE LAS GRÁFICAS DIFUSAS ---
+      const labelsHumedad = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
+
+      const baseDatasets = [
+        {
+          label: "Óptima (A)",
+          data: mu_A_arr,
+          borderColor: "rgba(21, 128, 61, 0.3)",
+          borderDash: [4, 4],
+          borderWidth: 2,
+          fill: false,
+          pointRadius: 0,
+          tension: 0.3,
+        },
+        {
+          label: "Sequía (B)",
+          data: mu_B_arr,
+          borderColor: "rgba(185, 28, 28, 0.3)",
+          borderDash: [4, 4],
+          borderWidth: 2,
+          fill: false,
+          pointRadius: 0,
+          tension: 0.3,
+        },
+        {
+          label: "Asfixia (C)",
+          data: mu_C_arr,
+          borderColor: "rgba(29, 78, 216, 0.3)",
+          borderDash: [4, 4],
+          borderWidth: 2,
+          fill: false,
+          pointRadius: 0,
+          tension: 0.3,
+        },
+      ];
+
+      Chart.defaults.color = "#334155";
+      Chart.defaults.font.family =
+        "'Segoe UI', Roboto, 'Helvetica Neue', sans-serif";
+
+      function createChart(ctxId, title, operationDatasets) {
+        new Chart(document.getElementById(ctxId), {
+          type: "line",
+          data: {
+            labels: labelsHumedad,
+            datasets: [...baseDatasets, ...operationDatasets],
+          },
+          options: {
+            responsive: true,
+            aspectRatio: 1.3,
+            plugins: {
+              legend: {
+                position: "bottom",
+                labels: { boxWidth: 10, font: { size: 10 } },
+              },
+              title: {
+                display: true,
+                text: title,
+                font: { size: 13, weight: "bold" },
+                color: Chart.defaults.color,
+              },
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                max: 1.1,
+                grid: { color: "rgba(0,0,0,0.05)" },
+              },
+              x: {
+                grid: { color: "rgba(0,0,0,0.05)" },
+                ticks: { font: { size: 10 } },
+              },
+            },
+          },
         });
+      }
 
-        const not_A = mu_A_arr.map(v => 1 - v);
-        
-        // P1: Contradiccion
-        createChart('chartP1', 'Operación: Intersección (A y Complemento)', [
-            { label: 'Complemento de A', data: not_A, borderColor: '#64748b', borderDash: [2,2], borderWidth: 2, pointRadius: 0, tension: 0.3 },
-            { label: 'A ∩ Not(A)', data: mu_A_arr.map((v, i) => Math.min(v, not_A[i])), borderColor: '#991b1b', backgroundColor: 'rgba(185, 28, 28, 0.5)', fill: true, tension: 0.3, borderWidth: 4 }
-        ]);
+      // Gráfica Contexto
+      new Chart(document.getElementById("chartIntro"), {
+        type: "line",
+        data: {
+          labels: labelsHumedad,
+          datasets: [
+            {
+              label: "B (Sequía)",
+              data: mu_B_arr,
+              borderColor: "#b91c1c",
+              backgroundColor: "rgba(239, 68, 68, 0.2)",
+              fill: true,
+              tension: 0.3,
+            },
+            {
+              label: "A (Óptima)",
+              data: mu_A_arr,
+              borderColor: "#15803d",
+              backgroundColor: "rgba(34, 197, 94, 0.2)",
+              fill: true,
+              tension: 0.3,
+            },
+            {
+              label: "C (Exceso)",
+              data: mu_C_arr,
+              borderColor: "#1d4ed8",
+              backgroundColor: "rgba(59, 130, 246, 0.2)",
+              fill: true,
+              tension: 0.3,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          aspectRatio: 2.5,
+          plugins: { legend: { position: "bottom" } },
+          scales: {
+            y: { max: 1.1, grid: { color: "rgba(0,0,0,0.05)" } },
+            x: { grid: { color: "rgba(0,0,0,0.05)" } },
+          },
+        },
+      });
 
-        // P2: Exclusión
-        createChart('chartP2', 'Operación: Unión (A y Complemento)', [
-            { label: 'Complemento de A', data: not_A, borderColor: '#64748b', borderDash: [2,2], borderWidth: 2, pointRadius: 0, tension: 0.3 },
-            { label: 'A ∪ Not(A)', data: mu_A_arr.map((v, i) => Math.max(v, not_A[i])), borderColor: '#c2410c', backgroundColor: 'rgba(194, 65, 12, 0.3)', fill: true, tension: 0.3, borderWidth: 4 }
-        ]);
+      const not_A = mu_A_arr.map((v) => 1 - v);
 
-        // P3: Idempotencia Union
-        createChart('chartP3', 'Operación: Unir A consigo mismo', [
-            { label: 'A ∪ A = A', data: mu_A_arr.map(v => Math.max(v, v)), borderColor: '#0369a1', borderDash: [8,4], borderWidth: 4, tension: 0.3 }
-        ]);
+      // P1: Contradiccion
+      createChart("chartP1", "Operación: Intersección (A y Complemento)", [
+        {
+          label: "Complemento de A",
+          data: not_A,
+          borderColor: "#64748b",
+          borderDash: [2, 2],
+          borderWidth: 2,
+          pointRadius: 0,
+          tension: 0.3,
+        },
+        {
+          label: "A ∩ Not(A)",
+          data: mu_A_arr.map((v, i) => Math.min(v, not_A[i])),
+          borderColor: "#991b1b",
+          backgroundColor: "rgba(185, 28, 28, 0.5)",
+          fill: true,
+          tension: 0.3,
+          borderWidth: 4,
+        },
+      ]);
 
-        // P4: Idempotencia Intersección
-        createChart('chartP4', 'Operación: Cruzar A consigo mismo', [
-            { label: 'A ∩ A = A', data: mu_A_arr.map(v => Math.min(v, v)), borderColor: '#15803d', borderDash: [8,4], borderWidth: 4, tension: 0.3 }
-        ]);
+      // P2: Exclusión
+      createChart("chartP2", "Operación: Unión (A y Complemento)", [
+        {
+          label: "Complemento de A",
+          data: not_A,
+          borderColor: "#64748b",
+          borderDash: [2, 2],
+          borderWidth: 2,
+          pointRadius: 0,
+          tension: 0.3,
+        },
+        {
+          label: "A ∪ Not(A)",
+          data: mu_A_arr.map((v, i) => Math.max(v, not_A[i])),
+          borderColor: "#c2410c",
+          backgroundColor: "rgba(194, 65, 12, 0.3)",
+          fill: true,
+          tension: 0.3,
+          borderWidth: 4,
+        },
+      ]);
 
-        // P5: Doble Negacion
-        createChart('chartP5', 'Operación: Negar dos veces', [
-            { label: 'Negación inicial', data: not_A, borderColor: '#94a3b8', borderWidth: 2, pointRadius: 0, tension: 0.3 },
-            { label: 'Not(Not(A)) = A', data: not_A.map(v => 1 - v), borderColor: '#047857', borderDash: [12,6], borderWidth: 4, tension: 0.3 }
-        ]);
+      // P3: Idempotencia Union
+      createChart("chartP3", "Operación: Unir A consigo mismo", [
+        {
+          label: "A ∪ A = A",
+          data: mu_A_arr.map((v) => Math.max(v, v)),
+          borderColor: "#0369a1",
+          borderDash: [8, 4],
+          borderWidth: 4,
+          tension: 0.3,
+        },
+      ]);
 
-        // P6: Conmutativa Union
-        const A_union_B = mu_A_arr.map((v, i) => Math.max(v, mu_B_arr[i]));
-        const B_union_A = mu_B_arr.map((v, i) => Math.max(v, mu_A_arr[i]));
-        createChart('chartP6', 'Comparación: A ∪ B  y  B ∪ A', [
-            { label: 'A unida con B', data: A_union_B, borderColor: '#1e293b', borderWidth: 6, tension: 0.3 },
-            { label: 'B unida con A', data: B_union_A, borderColor: '#b91c1c', borderDash: [10,10], borderWidth: 3, tension: 0.3 }
-        ]);
+      // P4: Idempotencia Intersección
+      createChart("chartP4", "Operación: Cruzar A consigo mismo", [
+        {
+          label: "A ∩ A = A",
+          data: mu_A_arr.map((v) => Math.min(v, v)),
+          borderColor: "#15803d",
+          borderDash: [8, 4],
+          borderWidth: 4,
+          tension: 0.3,
+        },
+      ]);
 
-        // P7: Conmutativa Intersección
-        const A_int_B = mu_A_arr.map((v, i) => Math.min(v, mu_B_arr[i]));
-        const B_int_A = mu_B_arr.map((v, i) => Math.min(v, mu_A_arr[i]));
-        createChart('chartP7', 'Comparación: A ∩ B  y  B ∩ A', [
-            { label: 'A cruzada con B', data: A_int_B, borderColor: '#7e22ce', borderWidth: 6, tension: 0.3 },
-            { label: 'B cruzada con A', data: B_int_A, borderColor: '#ca8a04', borderDash: [10,10], borderWidth: 3, tension: 0.3 }
-        ]);
+      // P5: Doble Negacion
+      createChart("chartP5", "Operación: Negar dos veces", [
+        {
+          label: "Negación inicial",
+          data: not_A,
+          borderColor: "#94a3b8",
+          borderWidth: 2,
+          pointRadius: 0,
+          tension: 0.3,
+        },
+        {
+          label: "Not(Not(A)) = A",
+          data: not_A.map((v) => 1 - v),
+          borderColor: "#047857",
+          borderDash: [12, 6],
+          borderWidth: 4,
+          tension: 0.3,
+        },
+      ]);
 
-        // P8: Asociativa Union
-        const B_union_C = mu_B_arr.map((v, i) => Math.max(v, mu_C_arr[i]));
-        createChart('chartP8', 'Agrupación diferente en la Unión', [
-            { label: 'Agrupando izquierda', data: A_union_B.map((v, i) => Math.max(v, mu_C_arr[i])), borderColor: '#0d9488', borderWidth: 6, tension: 0.3 },
-            { label: 'Agrupando derecha', data: mu_A_arr.map((v, i) => Math.max(v, B_union_C[i])), borderColor: '#c2410c', borderDash: [10,10], borderWidth: 3, tension: 0.3 }
-        ]);
+      // P6: Conmutativa Union
+      const A_union_B = mu_A_arr.map((v, i) => Math.max(v, mu_B_arr[i]));
+      const B_union_A = mu_B_arr.map((v, i) => Math.max(v, mu_A_arr[i]));
+      createChart("chartP6", "Comparación: A ∪ B  y  B ∪ A", [
+        {
+          label: "A unida con B",
+          data: A_union_B,
+          borderColor: "#1e293b",
+          borderWidth: 6,
+          tension: 0.3,
+        },
+        {
+          label: "B unida con A",
+          data: B_union_A,
+          borderColor: "#b91c1c",
+          borderDash: [10, 10],
+          borderWidth: 3,
+          tension: 0.3,
+        },
+      ]);
 
-        // P9: Asociativa Interseccion
-        const B_int_C = mu_B_arr.map((v, i) => Math.min(v, mu_C_arr[i])); 
-        createChart('chartP9', 'Agrupación diferente en la Intersección', [
-            { label: 'Agrupando izquierda', data: A_int_B.map((v, i) => Math.min(v, mu_C_arr[i])), borderColor: '#1e293b', borderWidth: 6, tension: 0.3 },
-            { label: 'Agrupando derecha', data: mu_A_arr.map((v, i) => Math.min(v, B_int_C[i])), borderColor: '#b45309', borderDash: [10,10], borderWidth: 3, tension: 0.3 }
-        ]);
+      // P7: Conmutativa Intersección
+      const A_int_B = mu_A_arr.map((v, i) => Math.min(v, mu_B_arr[i]));
+      const B_int_A = mu_B_arr.map((v, i) => Math.min(v, mu_A_arr[i]));
+      createChart("chartP7", "Comparación: A ∩ B  y  B ∩ A", [
+        {
+          label: "A cruzada con B",
+          data: A_int_B,
+          borderColor: "#7e22ce",
+          borderWidth: 6,
+          tension: 0.3,
+        },
+        {
+          label: "B cruzada con A",
+          data: B_int_A,
+          borderColor: "#ca8a04",
+          borderDash: [10, 10],
+          borderWidth: 3,
+          tension: 0.3,
+        },
+      ]);
 
-        // P10: Distributiva y De Morgan (Union)
-        const A_union_C = mu_A_arr.map((v, i) => Math.max(v, mu_C_arr[i]));
-        createChart('chartP10', 'Repartiendo la Unión (Distributiva)', [
-            { label: 'Unión normal', data: mu_A_arr.map((v, i) => Math.max(v, B_int_C[i])), borderColor: '#334155', borderWidth: 6, tension: 0.3 },
-            { label: 'Unión repartida', data: A_union_B.map((v, i) => Math.min(v, A_union_C[i])), borderColor: '#9333ea', borderDash: [10,10], borderWidth: 3, tension: 0.3 }
-        ]);
+      // P8: Asociativa Union
+      const B_union_C = mu_B_arr.map((v, i) => Math.max(v, mu_C_arr[i]));
+      createChart("chartP8", "Agrupación diferente en la Unión", [
+        {
+          label: "Agrupando izquierda",
+          data: A_union_B.map((v, i) => Math.max(v, mu_C_arr[i])),
+          borderColor: "#0d9488",
+          borderWidth: 6,
+          tension: 0.3,
+        },
+        {
+          label: "Agrupando derecha",
+          data: mu_A_arr.map((v, i) => Math.max(v, B_union_C[i])),
+          borderColor: "#c2410c",
+          borderDash: [10, 10],
+          borderWidth: 3,
+          tension: 0.3,
+        },
+      ]);
 
-        // P11: Distributiva y De Morgan (Interseccion)
-        const A_int_C = mu_A_arr.map((v, i) => Math.min(v, mu_C_arr[i]));
-        createChart('chartP11', 'Repartiendo la Intersección (Distributiva)', [
-            { label: 'Intersección normal', data: mu_A_arr.map((v, i) => Math.min(v, B_union_C[i])), borderColor: '#0284c7', borderWidth: 6, tension: 0.3 },
-            { label: 'Intersección repartida', data: A_int_B.map((v, i) => Math.max(v, A_int_C[i])), borderColor: '#b91c1c', borderDash: [10,10], borderWidth: 3, tension: 0.3 }
-        ]);
+      // P9: Asociativa Interseccion
+      const B_int_C = mu_B_arr.map((v, i) => Math.min(v, mu_C_arr[i]));
+      createChart("chartP9", "Agrupación diferente en la Intersección", [
+        {
+          label: "Agrupando izquierda",
+          data: A_int_B.map((v, i) => Math.min(v, mu_C_arr[i])),
+          borderColor: "#1e293b",
+          borderWidth: 6,
+          tension: 0.3,
+        },
+        {
+          label: "Agrupando derecha",
+          data: mu_A_arr.map((v, i) => Math.min(v, B_int_C[i])),
+          borderColor: "#b45309",
+          borderDash: [10, 10],
+          borderWidth: 3,
+          tension: 0.3,
+        },
+      ]);
+
+      // P10: Distributiva y De Morgan (Union)
+      const A_union_C = mu_A_arr.map((v, i) => Math.max(v, mu_C_arr[i]));
+      createChart("chartP10", "Repartiendo la Unión (Distributiva)", [
+        {
+          label: "Unión normal",
+          data: mu_A_arr.map((v, i) => Math.max(v, B_int_C[i])),
+          borderColor: "#334155",
+          borderWidth: 6,
+          tension: 0.3,
+        },
+        {
+          label: "Unión repartida",
+          data: A_union_B.map((v, i) => Math.min(v, A_union_C[i])),
+          borderColor: "#9333ea",
+          borderDash: [10, 10],
+          borderWidth: 3,
+          tension: 0.3,
+        },
+      ]);
+
+      // P11: Distributiva y De Morgan (Interseccion)
+      const A_int_C = mu_A_arr.map((v, i) => Math.min(v, mu_C_arr[i]));
+      createChart("chartP11", "Repartiendo la Intersección (Distributiva)", [
+        {
+          label: "Intersección normal",
+          data: mu_A_arr.map((v, i) => Math.min(v, B_union_C[i])),
+          borderColor: "#0284c7",
+          borderWidth: 6,
+          tension: 0.3,
+        },
+        {
+          label: "Intersección repartida",
+          data: A_int_B.map((v, i) => Math.max(v, A_int_C[i])),
+          borderColor: "#b91c1c",
+          borderDash: [10, 10],
+          borderWidth: 3,
+          tension: 0.3,
+        },
+      ]);
     </script>
-</body>
+  </body>
 </html>
